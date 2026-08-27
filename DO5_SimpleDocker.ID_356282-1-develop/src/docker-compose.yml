@@ -1,0 +1,20 @@
+services:
+  server:
+    build: .
+    networks:
+      - part_6
+
+  proxy:
+    image: nginx:latest
+    ports:
+      - "80:8080"
+    volumes:
+      - ./part6_nginx/nginx.conf:/etc/nginx/nginx.conf
+    networks:
+      - part_6
+    depends_on:
+      - server
+
+networks:
+  part_6:
+    driver: bridge

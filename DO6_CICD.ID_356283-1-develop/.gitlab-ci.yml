@@ -1,0 +1,46 @@
+stages:
+  - build
+  - style_check
+  - test
+  - deploy
+
+build_job:
+  stage: build
+  script:
+    - cp ./code-samples/main.c ./src
+    - cp ./code-samples/Makefile ./src
+    - cd ./src
+    - make clean
+    - make
+  artifacts:
+    paths:
+      - ./src/DO
+    expire_in: 30 days
+  after_script:
+    - curl -s -X POST https://api.telegram.org/bot8622863012:AAHZXHy8AWsuvrEcY0GYlvUKiAsQZ0PT7bA/sendMessage -d chat_id=282195596 -d text="build_job - $CI_JOB_STATUS"
+
+style_check_job:
+  stage: style_check
+  script:
+    - cp ./code-samples/main.c ./src
+    - cp ./materials/linters/.clang-format ./src
+    - clang-format -n -Werror ./src/main.c # - Werror - гарантированно отдаем ошибку
+  after_script:
+    - curl -s -X POST https://api.telegram.org/bot8622863012:AAHZXHy8AWsuvrEcY0GYlvUKiAsQZ0PT7bA/sendMessage -d chat_id=282195596 -d text="style_check_job - $CI_JOB_STATUS"
+
+test_job:
+  stage: test
+  script:
+    - cd ./src
+    - bash ./test.sh
+  after_script:
+    - curl -s -X POST https://api.telegram.org/bot8622863012:AAHZXHy8AWsuvrEcY0GYlvUKiAsQZ0PT7bA/sendMessage -d chat_id=282195596 -d text="test_job - $CI_JOB_STATUS"
+
+deploy_job:
+  stage: deploy
+  when: manual
+  script:
+    - cd ./src
+    - bash ./deploy.sh
+  after_script:
+    - curl -s -X POST https://api.telegram.org/bot8622863012:AAHZXHy8AWsuvrEcY0GYlvUKiAsQZ0PT7bA/sendMessage -d chat_id=282195596 -d text="deploy_job - $CI_JOB_STATUS"

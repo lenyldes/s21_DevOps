@@ -1,0 +1,5 @@
+sudo apt install -y libfcgi-dev spawn-fcgi gcc
+gcc server.c -o server -lfcgi
+spawn-fcgi -p 8080 -n ./server
+sudo nginx -c $(pwd)/nginx/nginx.conf
+curl http://localhost:81
