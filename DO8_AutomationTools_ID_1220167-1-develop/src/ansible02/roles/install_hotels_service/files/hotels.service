@@ -1,0 +1,14 @@
+[Unit]
+Description=Hotels API Service
+After=network.target consul-envoy.service
+Requires=consul-envoy.service
+
+[Service]
+User=vagrant
+WorkingDirectory=/home/vagrant/app/hotel-service
+EnvironmentFile=/etc/environment
+ExecStart=/usr/bin/java -jar /home/vagrant/app/hotel-service/target/hotel-service-0.0.1-SNAPSHOT.jar
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

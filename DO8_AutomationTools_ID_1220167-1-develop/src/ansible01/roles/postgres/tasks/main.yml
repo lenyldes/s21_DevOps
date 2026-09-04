@@ -1,0 +1,39 @@
+---
+- name: Установка PostgreSQL
+  ansible.builtin.apt:
+    name: postgresql
+    update_cache: yes
+
+- name: Запуск службы PostgreSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: started
+    enabled: yes
+
+- name: Создаем тестовую БД
+  become: yes
+  ansible.builtin.shell: sudo -u postgres psql -tc "SELECT 1 FROM pg_database WHERE datname = 'testbd'" | grep -q 1 || sudo -u postgres psql -c "CREATE DATABASE testbd;"
+
+- name: Создаем таблицу Person
+  become: yes
+  ansible.builtin.shell: sudo -u postgres psql -d testbd -c "CREATE TABLE IF NOT EXISTS Person (id integer, name text);"
+
+- name: Добавляем значения
+  become: yes
+  ansible.builtin.shell: sudo -u postgres psql -d testbd -c "INSERT INTO Person (id, name) SELECT * FROM (VALUES (1, 'Ivan'), (2, 'Petya'), (3, 'Masha')) AS v(id, name) WHERE NOT EXISTS (SELECT 1 FROM Person);"
+
+- name: Разрешаем прослушивание всех сетевых интерфейсов
+  ansible.builtin.lineinfile:
+    path: /etc/postgresql/16/main/postgresql.conf
+    regexp: '^#?listen_addresses\s*='
+    line: "listen_addresses = '*'"
+
+- name: Разрешаем доступ клиентам в pg_hba.conf
+  ansible.builtin.lineinfile:
+    path: /etc/postgresql/16/main/pg_hba.conf
+    line: "host all all 0.0.0.0/0 trust"
+
+- name: Перезапускаем службу PostgreSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted

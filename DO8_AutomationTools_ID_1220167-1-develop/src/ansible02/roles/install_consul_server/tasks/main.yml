@@ -1,0 +1,50 @@
+- name: Установка необходимых пакетов
+  ansible.builtin.apt:
+    name:
+      - curl
+      - wget
+      - gpg
+      - python3-debian
+      - ca-certificates
+      - tar
+    state: present
+    update_cache: true
+
+- name: Загрузка GPG ключа
+  ansible.builtin.get_url:
+    url: "https://apt.releases.hashicorp.com/gpg"
+    dest: "/usr/share/keyrings/hashicorp-archive-keyring.asc"
+    mode: "0644"
+
+
+- name: Add Docker apt repository (deb822 format)
+  ansible.builtin.deb822_repository:
+    name: consul
+    types: [deb]
+    uris: https://apt.releases.hashicorp.com
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: [main]
+    signed_by: /usr/share/keyrings/hashicorp-archive-keyring.asc
+    state: present
+
+- name: Установка consul
+  ansible.builtin.apt:
+    name:
+      - consul
+    state: present
+    update_cache: true
+
+- name: Копирование файла конфигурации
+  ansible.builtin.copy:
+    src: /vagrant/consul01/consul_server.hcl
+    dest: /etc/consul.d/consul_server.hcl
+    owner: consul
+    group: consul
+    mode: "0644"
+  notify: Рестарт сервиса consul
+
+- name: Запуск сервиса consul
+  ansible.builtin.systemd:
+    name: consul
+    state: started
+    enabled: true

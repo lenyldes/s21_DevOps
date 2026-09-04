@@ -1,0 +1,66 @@
+---
+- name: Установка openjdk-21-jdk и maven
+  ansible.builtin.apt:
+    name:
+      - openjdk-21-jdk
+      - maven
+    update_cache: true
+
+- name: Копирование исходников
+  ansible.builtin.copy:
+    src: /vagrant/services/hotel-service/
+    dest: /home/vagrant/app/hotel-service/
+    owner: vagrant
+    group: vagrant
+    mode: '0755'
+
+- name: Задаем глобальную переменную POSTGRES_HOST
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: 'POSTGRES_HOST="127.0.0.1"'
+    state: present
+
+- name: Задаем глобальную переменную POSTGRES_PORT
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: 'POSTGRES_PORT="5432"'
+    state: present
+
+- name: Задаем глобальную переменную POSTGRES_DB
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: 'POSTGRES_DB="hotels_db"'
+    state: present
+
+- name: Задаем глобальную переменную POSTGRES_USER
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: 'POSTGRES_USER="postgres"'
+    state: present
+
+- name: Задаем глобальную переменную POSTGRES_PASSWORD
+  ansible.builtin.lineinfile:
+    path: /etc/environment
+    line: 'POSTGRES_PASSWORD="postgres"'
+    state: present
+
+- name: Собираем jar-файл
+  ansible.builtin.command:
+    cmd: ./mvnw package -DskipTests
+    chdir: /home/vagrant/app/hotel-service
+    creates: /home/vagrant/app/hotel-service/target/hotel-service-0.0.1-SNAPSHOT.jar
+
+- name: Копируем hotels.service
+  ansible.builtin.copy:
+    src: /vagrant/ansible02/roles/install_hotels_service/files/hotels.service
+    dest: /etc/systemd/system/hotels.service
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Запуск сервиса hotels.service
+  ansible.builtin.systemd:
+    name: hotels
+    state: started
+    enabled: true
+    daemon_reload: true

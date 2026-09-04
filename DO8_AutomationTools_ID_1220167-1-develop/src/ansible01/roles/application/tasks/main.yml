@@ -1,0 +1,96 @@
+---
+  - name: Install prerequisites (ca-certificates, curl, python3, tar)
+    ansible.builtin.apt:
+      name:
+        - ca-certificates
+        - curl
+        - python3-debian
+        - tar
+      state: present
+      update_cache: yes
+
+  - name: Create directory for Docker GPG key
+    ansible.builtin.file:
+      path: /etc/apt/keyrings
+      state: directory
+      mode: '0755'
+
+  - name: Download Docker official GPG key
+    ansible.builtin.get_url:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      dest: /etc/apt/keyrings/docker.asc
+      mode: '0644'
+
+  - name: Add Docker apt repository (deb822 format)
+    ansible.builtin.deb822_repository:
+      name: docker
+      types: [deb]
+      uris: https://download.docker.com/linux/ubuntu
+      suites: "{{ ansible_facts['distribution_release'] }}"
+      components: [stable]
+      signed_by: /etc/apt/keyrings/docker.asc
+      state: present
+
+  - name: Update apt cache after adding Docker repository
+    ansible.builtin.apt:
+      update_cache: yes
+
+  - name: Install Docker packages
+    ansible.builtin.apt:
+      name:
+        - docker-ce
+        - docker-ce-cli
+        - containerd.io
+        - docker-buildx-plugin
+        - docker-compose-plugin
+      state: present
+
+  - name: Add user to docker group
+    ansible.builtin.user:
+      name: "{{ docker_user }}"
+      groups: docker
+      append: yes
+
+  - name: Display reminder about re-login
+    ansible.builtin.debug:
+      msg: "User '{{ docker_user }}' added to docker group. You must log out and back in (or restart the session) for changes to take effect."
+
+  - name: Start Docker daemon
+    ansible.builtin.service:
+      name: docker
+      state: started
+      enabled: yes
+  
+  - name: Подготовка директории
+    ansible.builtin.file:
+      path: /home/vagrant/app
+      state: directory
+      owner: vagrant
+      group: vagrant 
+      mode: '0755'
+
+  - name: Копирование docker compose
+    ansible.builtin.copy:
+      src: /vagrant/docker-compose.yml
+      dest: /home/vagrant/app/docker-compose.yml
+      owner: vagrant
+      group: vagrant
+
+  - name: Упаковка исходников сервисов на manager
+    ansible.builtin.command: tar -czf /vagrant/services.tar.gz -C /vagrant services
+    args:
+      creates: /vagrant/services.tar.gz
+    delegate_to: localhost
+    run_once: true
+
+  - name: Распаковка сервисов на node01
+    ansible.builtin.unarchive:
+      src: /vagrant/services.tar.gz
+      dest: /home/vagrant/app/
+      owner: vagrant
+      group: vagrant
+
+  - name: Запуск сервиса
+    ansible.builtin.command:
+      cmd: docker compose up -d --build
+      chdir: /home/vagrant/app/

@@ -1,0 +1,103 @@
+- name: Установка необходимых пакетов
+  ansible.builtin.apt:
+    name:
+      - curl
+      - wget
+      - gpg
+      - python3-debian
+      - ca-certificates
+      - tar
+    state: present
+    update_cache: true
+
+- name: Загрузка GPG ключа
+  ansible.builtin.get_url:
+    url: "https://apt.releases.hashicorp.com/gpg"
+    dest: "/usr/share/keyrings/hashicorp-archive-keyring.asc"
+    mode: "0644"
+
+
+- name: Add apt repository (deb822 format)
+  ansible.builtin.deb822_repository:
+    name: consul
+    types: [deb]
+    uris: https://apt.releases.hashicorp.com
+    suites: "{{ ansible_facts['distribution_release'] }}"
+    components: [main]
+    signed_by: /usr/share/keyrings/hashicorp-archive-keyring.asc
+    state: present
+
+- name: Установка consul
+  ansible.builtin.apt:
+    name:
+      - consul
+    state: present
+    update_cache: true
+
+- name: Копирование файла конфигурации
+  ansible.builtin.copy:
+    src: /vagrant/consul01/consul_client.hcl
+    dest: /etc/consul.d/consul_client.hcl
+    owner: consul
+    group: consul
+    mode: "0644"
+  notify: Рестарт сервиса consul
+
+- name: Копируем файлы конфигураций для подключения envoy для db_servers
+  when: inventory_hostname in groups['db_servers']
+  ansible.builtin.copy:
+    src: /vagrant/ansible02/roles/install_consul_client/files/db_service.hcl
+    dest: /etc/consul.d/db_service.hcl
+    owner: consul
+    group: consul
+    mode: "0644"
+  notify: Рестарт сервиса consul
+
+- name: Копируем файлы конфигураций для подключения envoy для api_servers
+  when: inventory_hostname in groups['api_servers']
+  ansible.builtin.copy:
+    src: /vagrant/ansible02/roles/install_consul_client/files/api_service.hcl
+    dest: /etc/consul.d/api_service.hcl
+    owner: consul
+    group: consul
+    mode: "0644"
+  notify: Рестарт сервиса consul
+
+- name: Копируем consul-envoy.service для db_servers
+  when: inventory_hostname in groups['db_servers']
+  ansible.builtin.copy:
+    src: /vagrant/ansible02/roles/install_consul_client/files/consul-envoy-db.service
+    dest: /etc/systemd/system/consul-envoy.service
+    owner: consul
+    group: consul
+    mode: "0644"
+
+- name: Копируем consul-envoy.service для api_servers
+  when: inventory_hostname in groups['api_servers']
+  ansible.builtin.copy:
+    src: /vagrant/ansible02/roles/install_consul_client/files/consul-envoy-holel.service
+    dest: /etc/systemd/system/consul-envoy.service
+    owner: consul
+    group: consul
+    mode: "0644"
+
+- name: Установка envoy через бинарник
+  ansible.builtin.get_url:
+    url: https://github.com/envoyproxy/envoy/releases/download/v1.38.4/envoy-1.38.4-linux-x86_64
+    dest: /usr/bin/envoy
+    mode: '0755'
+    owner: root
+    group: root
+
+- name: Запуск сервиса consul
+  ansible.builtin.systemd:
+    name: consul
+    state: started
+    enabled: true
+
+- name: Запуск consul-envoy.service
+  ansible.builtin.systemd:
+    name: consul-envoy
+    state: started
+    enabled: true
+    daemon_reload: true
