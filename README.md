@@ -9,22 +9,22 @@
 ![Prometheus](https://img.shields.io/badge/Monitoring-Prometheus%20%7C%20Grafana-E6522C?style=flat&logo=prometheus&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Completed-success?style=flat)
 
-Репозиторий представляет собой последовательную систему прикладных инженерных задач, моделирующих реальные сценарии эксплуатации серверной инфраструктуры — от базовой инициализации физических/виртуальных серверов до автоматизированной доставки кода на удаленные целевые узлы с мгновенным оповещением команды.
+Репозиторий — серия практических задач, моделирующих реальные сценарии работы с серверной инфраструктурой: от базовой настройки физических и виртуальных серверов до автоматизированного деплоя на удалённые узлы с уведомлением команды в Telegram.
 
-Все проекты выполнены с соблюдением отраслевых стандартов надежности, принципов Infrastructure as Code (IaC), строгой валидации входных параметров, безопасности сетевого периметра и изоляции процессов.
+Все проекты выполнены с соблюдением отраслевых стандартов надёжности, принципов Infrastructure as Code (IaC), валидацией входных параметров, защитой сетевого периметра и изоляцией процессов.
 
 ---
 
 ## Обзор портфолио
 
-Инженерный комплекс охватывает полный жизненный цикл серверных систем и распределенных приложений:
+Комплекс охватывает полный жизненный цикл серверных систем и распределённых приложений:
 
-1. **Фундамент системного уровня (D01, DO2)**: глубокое администрирование дисковых подсистем, прав доступа, демонов `systemd`, развертывание сложных сетевых топологий, бесклассовой маршрутизации и пакетной фильтрации через `iptables`.
-2. **Автоматизация и системный мониторинг (DO3, DO4)**: разработка специализированных CLI-утилит на Bash для сбора телеметрии ядра, стресс-нагрузка дисковых накопителей, потоковый аудит логов веб-серверов через `awk` и развертывание Observability-стека Prometheus/Grafana.
-3. **Контейнеризация и веб-сервисы (DO5)**: разработка высокопроизводительного C-демона FastCGI, создание защищенных легковесных образов Docker в соответствии с CIS Docker Benchmark (Dockle) и двухуровневое обратное проксирование Nginx.
-4. **Непрерывная интеграция и доставка (DO6)**: проектирование многостадийного конвейера GitLab CI/CD со статическим анализом кода Google Style, автоматическим тестированием, ручным гейтом деплоя по SSH/SCP и интеграцией Telegram-оповещений.
-5. **Кластерная оркестрация микросервисов (DO7)**: оптимизация многоэтапных сборок (Multi-Stage Builds) для микросервисов Java 21 / Spring Boot, предотвращение состояния гонки при запуске (`wait-for-it.sh`), локальный запуск через Docker Compose и развертывание отказоустойчивого кластера Docker Swarm в оверлейной сети VXLAN под управлением Vagrant.
-6. **Конфигурационное управление и Service Discovery (DO8)**: безагентная автоматизация серверов на базе Ansible (модульные роли, идемпотентные плейбуки), развертывание распределенного сервис-каталога HashiCorp Consul с консенсусом Raft, интеграция Service Mesh через Envoy sidecar-прокси и подтверждение Zero-Downtime миграции сервисов.
+1. **Фундамент системного уровня (D01, DO2)**: администрирование дисковых подсистем, прав доступа, демонов `systemd`, построение сетевых топологий, бесклассовая маршрутизация и пакетная фильтрация через `iptables`.
+2. **Автоматизация и системный мониторинг (DO3, DO4)**: написание CLI-утилит на Bash для сбора телеметрии ядра, стресс-тестирование дисковых накопителей, потоковый анализ логов веб-серверов через `awk` и развёртывание Observability-стека Prometheus/Grafana.
+3. **Контейнеризация и веб-сервисы (DO5)**: разработка FastCGI-демона на C, создание защищённых легковесных Docker-образов в соответствии с CIS Docker Benchmark (Dockle) и двухуровневое обратное проксирование через Nginx.
+4. **Непрерывная интеграция и доставка (DO6)**: многостадийный пайплайн GitLab CI/CD со статическим анализом кода в стиле Google, автоматическим тестированием, ручным деплоем по SSH/SCP и интеграцией Telegram-уведомлений.
+5. **Кластерная оркестрация микросервисов (DO7)**: оптимизация многоэтапных сборок (Multi-Stage Builds) для микросервисов на Java 21 / Spring Boot, предотвращение состояния гонки при запуске (`wait-for-it.sh`), локальный запуск через Docker Compose и развёртывание отказоустойчивого кластера Docker Swarm в оверлейной сети VXLAN под управлением Vagrant.
+6. **Конфигурационное управление и Service Discovery (DO8)**: безагентная автоматизация серверов на Ansible (модульные роли, идемпотентные плейбуки), развёртывание распределённого сервис-каталога HashiCorp Consul с консенсусом Raft, интеграция Service Mesh через Envoy sidecar-прокси и демонстрация Zero-Downtime миграции сервисов.
 
 ---
 
@@ -33,15 +33,15 @@
 | Категория | Освоенные технологии и практические компетенции |
 | :--- | :--- |
 | **Системное администрирование Linux** | GNU/Linux (Ubuntu 20.04/24.04 LTS), управление процессами (`systemd`, `cron`, сигналы POSIX), пользователи и группы (`sudoers`, `chmod`, `chown`, ACL), дисковая подсистема (`fdisk`, `mkfs`, монтирование томов, `df`, `du`, `ncdu`), системный аудит (`journalctl`, анализ `/var/log`). |
-| **Компьютерные сети и безопасность** | Стеки протоколов TCP/IP, UDP, ICMP; бесклассовая адресация CIDR, расчет масок и подсетей (`ipcalc`); статическая маршрутизация и Netplan YAML; межсетевые экраны и NAT (`iptables`: таблицы Filter, NAT, цепочки PREROUTING, POSTROUTING, MASQUERADE); DHCP-сервер (`isc-dhcp-server`); замеры пропускной способности (`iperf3`); безопасный удаленный доступ (SSH-ключи ED25519/RSA, туннелирование портов, SCP). |
-| **Bash-скриптинг и аналитика** | GNU Bash 5.0+, регулярные выражения (POSIX regex), потоковая обработка текстовых потоков (`awk`, `sed`, `grep`, `cut`, `sort`, `uniq`), опрос виртуальных файловых систем ядра (`/proc`, `/sys`), стилизация интерфейсов (ANSI escape-последовательности), криптографическое хеширование (MD5, SHA256). |
-| **Контейнеризация и безопасность (Docker)** | Docker Engine, написание оптимизированных многоэтапных сборок (Multi-Stage Dockerfile на Eclipse Temurin Alpine), минимизация слоев OverlayFS, кэширование зависимостей Maven/JDK, безопасные непривилегированные пользователи (`USER non-root`), устранение уязвимостей CIS Docker Benchmark с помощью линтера Dockle, мультиплатформенная сборка Docker Buildx (`amd64`/`arm64`). |
-| **Оркестрация (Compose & Swarm)** | Docker Compose (декларативное описание 9-компонентных микросервисных стеков, `depends_on`, bind-mount, изоляция сетей `bridge`), Docker Swarm (инициализация менеджера, подключение воркеров, распределенные оверлейные сети VXLAN, Ingress Routing Mesh, сервисы с репликацией, горизонтальное масштабирование `scale`, rolling updates без простоя, самоисцеление кластера Anti-Flapping), визуализатор Portainer CE Agent Stack. |
-| **Управление конфигурациями (Ansible)** | Инфраструктура как код (IaC), инвентари хостов `inventory.ini`, безагентная архитектура по SSH, написание декларативных плейбуков `playbook.yml`, ключевые модули (`apt`, `deb822_repository`, `get_url`, `file`, `copy`, `unarchive`, `systemd`, `lineinfile`, `user`), архитектурная декомпозиция на повторно используемые роли (Ansible Roles), коллекция `community.postgresql`. |
-| **Service Discovery & Service Mesh (Consul)** | HashiCorp Consul (серверный и клиентский режимы в синтаксисе HCL, алгоритм консенсуса Raft, gossip-протокол Serf LAN), централизованный Service Catalog, активные проверки жизнеспособности (HTTP/TCP/Script Health Checks), Service Discovery через встроенный DNS-интерфейс (порт 8600) и HTTP API (порт 8500), интеграция Consul Connect Service Mesh с Envoy sidecar-прокси (протокол xDS, gRPC 8502, взаимное mTLS-шифрование, Zero-Downtime миграция сетевых адресов). |
+| **Компьютерные сети и безопасность** | Стеки протоколов TCP/IP, UDP, ICMP; бесклассовая адресация CIDR, расчёт масок и подсетей (`ipcalc`); статическая маршрутизация и Netplan YAML; межсетевые экраны и NAT (`iptables`: таблицы Filter, NAT, цепочки PREROUTING, POSTROUTING, MASQUERADE); DHCP-сервер (`isc-dhcp-server`); замеры пропускной способности (`iperf3`); безопасный удалённый доступ (SSH-ключи ED25519/RSA, туннелирование портов, SCP). |
+| **Bash-скриптинг и аналитика** | GNU Bash 5.0+, регулярные выражения (POSIX regex), потоковая обработка текста (`awk`, `sed`, `grep`, `cut`, `sort`, `uniq`), чтение виртуальных файловых систем ядра (`/proc`, `/sys`), стилизация вывода (ANSI escape-последовательности), криптографическое хеширование (MD5, SHA256). |
+| **Контейнеризация и безопасность (Docker)** | Docker Engine, оптимизированные многоэтапные сборки (Multi-Stage Dockerfile на Eclipse Temurin Alpine), минимизация слоёв OverlayFS, кэширование зависимостей Maven/JDK, непривилегированные пользователи (`USER non-root`), устранение уязвимостей CIS Docker Benchmark через линтер Dockle, мультиплатформенная сборка Docker Buildx (`amd64`/`arm64`). |
+| **Оркестрация (Compose & Swarm)** | Docker Compose (декларативное описание 9-компонентных микросервисных стеков, `depends_on`, bind-mount, изоляция сетей `bridge`), Docker Swarm (инициализация менеджера, подключение воркеров, распределённые оверлейные сети VXLAN, Ingress Routing Mesh, сервисы с репликацией, горизонтальное масштабирование `scale`, rolling updates без простоя, самоисцеление кластера Anti-Flapping), визуализатор Portainer CE Agent Stack. |
+| **Управление конфигурациями (Ansible)** | Infrastructure as Code (IaC), инвентари хостов `inventory.ini`, безагентная архитектура по SSH, декларативные плейбуки `playbook.yml`, ключевые модули (`apt`, `deb822_repository`, `get_url`, `file`, `copy`, `unarchive`, `systemd`, `lineinfile`, `user`), декомпозиция на переиспользуемые роли (Ansible Roles), коллекция `community.postgresql`. |
+| **Service Discovery & Service Mesh (Consul)** | HashiCorp Consul (серверный и клиентский режимы, конфигурация в HCL, алгоритм консенсуса Raft, gossip-протокол Serf LAN), централизованный Service Catalog, активные проверки работоспособности (HTTP/TCP/Script Health Checks), Service Discovery через встроенный DNS-интерфейс (порт 8600) и HTTP API (порт 8500), интеграция Consul Connect Service Mesh с Envoy sidecar-прокси (протокол xDS, gRPC 8502, взаимное mTLS-шифрование, Zero-Downtime миграция сетевых адресов). |
 | **Инфраструктура виртуализации (IaC)** | HashiCorp Vagrant, Oracle VirtualBox, автоматизированное создание гетерогенных многоузловых кластеров (`Vagrantfile`), конфигурирование частных подсетей (Private Network), проброс портов (Port Forwarding), shell-провижининг. |
-| **CI/CD и автоматизация поставки** | Проектирование пайплайнов в `.gitlab-ci.yml` (4 стадии: `build`, `style_check`, `test`, `deploy`), управление артефактами (`artifacts`, `expire_in: 30 days`), ручные гейты деплоя (`when: manual`), статический анализ кода Google Style (`clang-format -n -Werror`), интеграционное Bash-тестирование, беспарольная доставка бинарников по SSH/SCP, Telegram Bot API нотификации статусов пайплайна через `after_script`. |
-| **Observability, мониторинг и тесты** | Prometheus (сбор метрик, scrape configs, TSDB), визуализация метрик в Grafana (проектирование кастомных дашбордов, мониторинг CPU/Memory/Disk/Network), потоковый парсинг логов Nginx через GoAccess, автоматизация сквозного тестирования REST API (коллекции Postman, запуск в контейнеризованном раннере Newman CLI). |
+| **CI/CD и автоматизация поставки** | Пайплайны в `.gitlab-ci.yml` (4 стадии: `build`, `style_check`, `test`, `deploy`), управление артефактами (`artifacts`, `expire_in: 30 days`), ручные гейты деплоя (`when: manual`), статический анализ кода Google Style (`clang-format -n -Werror`), интеграционное Bash-тестирование, беспарольная доставка бинарников по SSH/SCP, уведомления о статусах пайплайна через Telegram Bot API в `after_script`. |
+| **Observability, мониторинг и тесты** | Prometheus (сбор метрик, scrape configs, TSDB), визуализация в Grafana (кастомные дашборды, мониторинг CPU/Memory/Disk/Network), потоковый парсинг логов Nginx через GoAccess, автоматизация сквозного тестирования REST API (коллекции Postman, запуск в контейнеризованном раннере Newman CLI). |
 
 ---
 
@@ -52,11 +52,11 @@
 | 01 | **D01: Linux Basics** | Системное администрирование Linux, пользователи, процессы, накопители и службы | Права доступа, sudoers, разметка дисков fdisk, анализ FS (df, du, ncdu), systemd (sshd, timesyncd), cron, аудит логов | [README.md](./D01_Linux.ID_356272-1-develop/README.md) |
 | 02 | **DO2: Linux Network** | Компьютерные сети в Linux, статическая маршрутизация, фильтрация трафика и NAT | Бесклассовая адресация (ipcalc, CIDR), Netplan YAML, статическая маршрутизация, iptables (Filter, NAT/MASQUERADE, DNAT), DHCP (isc-dhcp-server), iperf3, SSH-туннели | [README.md](./DO2_LinuxNetwork.ID_356275-1-develop/README.md) |
 | 03 | **DO3: Linux Monitoring v1.0** | Автоматизация системного мониторинга и анализ файлов на Bash | Модульные Bash-скрипты, валидация CLI-аргументов regex, ANSI-стилизация вывода, чтение метрик procfs/sysfs, логирование .status, аудит файлов и хеширование MD5 | [README.md](./DO3_LinuxMonitoring_v1_0_ID_356278-3-develop/README.md) |
-| 04 | **DO4: Linux Monitoring v2.0** | Комплексный мониторинг, стресс-нагрузка FS, аналитика веб-логов и Prometheus/Grafana | Генерация файлов (fallocate), стресс-тестирование FS до 1 Гб порога, стратегии очистки (лог, время, маска), синтез и awk-парсинг логов Nginx, GoAccess, стек Prometheus/Grafana | [README.md](./DO4_LinuxMonitoring_v2_0_ID_356280-1-develop/README.md) |
+| 04 | **DO4: Linux Monitoring v2.0** | Комплексный мониторинг, стресс-нагрузка FS, аналитика веб-логов и Prometheus/Grafana | Генерация файлов (fallocate), стресс-тестирование FS до порога 1 Гб, стратегии очистки (лог, время, маска), генерация и awk-парсинг логов Nginx, GoAccess, стек Prometheus/Grafana | [README.md](./DO4_LinuxMonitoring_v2_0_ID_356280-1-develop/README.md) |
 | 05 | **DO5: Simple Docker** | Контейнеризация сервисов, FastCGI на C, безопасность Dockle и Docker Compose | Жизненный цикл Docker, написание Dockerfile, непривилегированный пользователь (non-root), устранение уязвимостей CIS Docker Benchmark (Dockle), multi-container стек (Nginx + FastCGI) через Docker Compose | [README.md](./DO5_SimpleDocker.ID_356282-1-develop/README.md) |
-| 06 | **DO6: CI/CD Pipeline** | Непрерывная интеграция и доставка (CI/CD) на базе GitLab CI/CD | Проектирование .gitlab-ci.yml (4 стадии: build, style_check, test, deploy), артефакты сборки, строгий линтинг clang-format (-Werror), bash-тестирование, ручной деплой по SSH/SCP, Telegram Bot API нотификации | [README.md](./DO6_CICD.ID_356283-1-develop/README.md) |
+| 06 | **DO6: CI/CD Pipeline** | Непрерывная интеграция и доставка (CI/CD) на базе GitLab CI/CD | Проектирование .gitlab-ci.yml (4 стадии: build, style_check, test, deploy), артефакты сборки, строгий линтинг clang-format (-Werror), bash-тестирование, ручной деплой по SSH/SCP, уведомления через Telegram Bot API | [README.md](./DO6_CICD.ID_356283-1-develop/README.md) |
 | 07 | **DO7: Container Orchestration** | Оркестрация микросервисов: Multi-Stage Docker, Docker Compose и кластер Docker Swarm | Микросервисный стек (Java 21 / Spring Boot, RabbitMQ, PostgreSQL), оптимизация multi-stage сборок (~124 МБ), wait-for-it.sh, виртуализация Vagrant/VirtualBox, кластер Swarm (Manager + Workers), оверлейная сеть VXLAN, Ingress Mesh, Portainer CE, автотесты Postman/Newman | [README.md](./DO7_Docker_Compose_ID_1219717-1-develop/README.md) |
-| 08 | **DO8: Infrastructure Automation & Service Discovery** | Автоматизация конфигурации через Ansible и Service Discovery на HashiCorp Consul | Безагентный провижининг по SSH, модульные роли Ansible (application, apache, postgres), развертывание 9 микросервисов в Docker, кластер HashiCorp Consul (Raft, Serf Gossip), Service Mesh Envoy sidecar, Health Checks, DNS/HTTP discovery, Zero-Downtime миграция хостов | [README.md](./DO8_AutomationTools_ID_1220167-1-develop/README.md) |
+| 08 | **DO8: Infrastructure Automation & Service Discovery** | Автоматизация конфигурации через Ansible и Service Discovery на HashiCorp Consul | Безагентный провижининг по SSH, модульные роли Ansible (application, apache, postgres), развёртывание 9 микросервисов в Docker, кластер HashiCorp Consul (Raft, Serf Gossip), Service Mesh Envoy sidecar, Health Checks, DNS/HTTP discovery, Zero-Downtime миграция хостов | [README.md](./DO8_AutomationTools_ID_1220167-1-develop/README.md) |
 
 ---
 
@@ -68,13 +68,13 @@
 ├── D01_Linux.ID_356272-1-develop/                    # Проект 01: Администрирование Linux
 │   ├── README.md                                     # Документация проекта D01
 │   └── src/
-│       ├── D01_Linux.md                              # Инженерный отчет по 15 разделам
-│       └── screenshot/                               # Графические подтверждения конфигураций
+│       ├── D01_Linux.md                              # Инженерный отчёт по 15 разделам
+│       └── screenshot/                               # Скриншоты конфигураций
 ├── DO2_LinuxNetwork.ID_356275-1-develop/             # Проект 02: Сетевое администрирование
 │   ├── README.md                                     # Документация проекта DO2
 │   └── src/
-│       ├── DO2_LinuxNetwork.md                       # Инженерный отчет по 8 разделам сетей
-│       └── screenshot/                               # Подтверждения тестов маршрутизации
+│       ├── DO2_LinuxNetwork.md                       # Инженерный отчёт по 8 разделам сетей
+│       └── screenshot/                               # Скриншоты тестов маршрутизации
 ├── DO3_LinuxMonitoring_v1_0_ID_356278-3-develop/     # Проект 03: Bash-мониторинг v1.0
 │   ├── README.md                                     # Документация проекта DO3
 │   └── src/
@@ -91,7 +91,7 @@
 │       ├── 03/                                       # Модуль очистки диска (3 независимых метода)
 │       ├── 04/                                       # Генератор веб-логов Nginx Combined
 │       ├── 05/                                       # AWK-парсер и фильтратор веб-логов
-│       ├── 06/                                       # Модуль визуализации отчетов GoAccess
+│       ├── 06/                                       # Модуль визуализации отчётов GoAccess
 │       ├── 07/                                       # Observability-стек (Prometheus + Grafana)
 │       └── 08/                                       # Экспорт и визуализация дашбордов Grafana
 ├── DO5_SimpleDocker.ID_356282-1-develop/             # Проект 05: Контейнеризация и Docker
@@ -117,7 +117,7 @@
 │       ├── Vagrantfile                               # Топология виртуальных машин Swarm (3 узла)
 │       ├── docker-compose.yml                        # Мультиконтейнерная оркестрация микросервисов
 │       ├── portainer-agent-stack.yml                 # Стек мониторинга и UI Portainer CE
-│       ├── REPORT.md                                 # Инженерный отчет с подтверждениями
+│       ├── REPORT.md                                 # Инженерный отчёт с подтверждениями
 │       ├── application_tests.postman_collection.json # Сквозные E2E-тесты REST API
 │       ├── script/
 │       │   └── docker-install.sh                     # Автоматизированная установка Docker Engine
@@ -126,7 +126,7 @@
     ├── README.md                                     # Документация проекта DO8
     └── src/
         ├── Vagrantfile                               # Стенды виртуализации для Ansible и Consul
-        ├── REPORT.MD                                 # Инженерный отчет с подтверждениями
+        ├── REPORT.MD                                 # Инженерный отчёт с подтверждениями
         ├── application_tests.postman_collection.json # Коллекция E2E-тестов API
         ├── ansible01/                                # Part 1: Плейбук и роли деплоя микросервисов
         │   ├── inventory.ini                         # Инвентарь хостов (manager, node01, node02)
@@ -143,7 +143,7 @@
 
 ---
 
-## Требования и инструкция по быстрому старту
+## Требования и быстрый старт
 
 ### Системные требования
 - **Операционная система:** Linux (рекомендуется Ubuntu 20.04 / 22.04 / 24.04 LTS);
@@ -152,7 +152,7 @@
 - **Контейнеризация:** Docker Engine 20.10+, Docker Compose v2+;
 - **Виртуализация и IaC:** HashiCorp Vagrant 2.3+, Oracle VirtualBox 7.0+;
 - **Автоматизация конфигурации:** Ansible 2.14+ (с коллекцией `community.postgresql`);
-- **CI/CD раннер:** GitLab Runner (для воспроизведения распределенного пайплайна);
+- **CI/CD раннер:** GitLab Runner (для воспроизведения распределённого пайплайна);
 - **Компиляторы и утилиты сборки:** `gcc`, `clang-format`, `make`, OpenJDK 21, Apache Maven.
 
 ### Быстрый старт
@@ -178,7 +178,7 @@
 
 3. **Запуск стресс-тестирования и стека метрик (DO4):**
    |||bash
-   # Развертывание Prometheus и Grafana через Docker Compose
+   # Развёртывание Prometheus и Grafana через Docker Compose
    cd DO4_LinuxMonitoring_v2_0_ID_356280-1-develop/src/07
    docker compose up -d
    |||
@@ -191,7 +191,7 @@
    curl http://localhost:80/
    |||
 
-5. **Тестирование конвейера сборки и интеграционных тестов (DO6):**
+5. **Локальный прогон тестов и пайплайна (DO6):**
    |||bash
    # Локальный прогон тестов приложения
    cd DO6_CICD.ID_356283-1-develop/src
@@ -206,9 +206,9 @@
    curl http://localhost:8087/api/v1/hotels
    |||
 
-7. **Развертывание кластера Docker Swarm на виртуальных машинах (DO7):**
+7. **Развёртывание кластера Docker Swarm на виртуальных машинах (DO7):**
    |||bash
-   # Подъем кластера виртуализации через Vagrant
+   # Подъём кластера виртуализации через Vagrant
    cd DO7_Docker_Compose_ID_1219717-1-develop/src
    vagrant up
    vagrant ssh manager01
@@ -216,25 +216,25 @@
 
 8. **Автоматизация конфигурации серверов через Ansible (DO8):**
    |||bash
-   # Развертывание виртуальных машин стенда Ansible
+   # Развёртывание виртуальных машин стенда Ansible
    cd DO8_AutomationTools_ID_1220167-1-develop/src
    vagrant up manager node01 node02
 
-   # Подключение к менеджеру и запуск модульного плейбука
+   # Подключение к менеджеру и запуск плейбука
    vagrant ssh manager
    cd /vagrant/ansible01
    ansible-playbook -i inventory.ini playbook.yml
    |||
 
-9. **Развертывание Service Discovery на HashiCorp Consul (DO8):**
+9. **Развёртывание Service Discovery на HashiCorp Consul (DO8):**
    |||bash
-   # Развертывание кластера Consul и микросервиса отелей
+   # Развёртывание кластера Consul и микросервиса отелей
    cd DO8_AutomationTools_ID_1220167-1-develop/src
    vagrant up consulServer api db
    vagrant ssh consulServer
    cd /vagrant/ansible02
    ansible-playbook -i inventory.ini playbook.yml
 
-   # Проверка статуса сервисов в веб-интерфейсе Consul
+   # Проверка статуса сервисов через HTTP API Consul
    curl http://192.168.56.20:8500/v1/catalog/services
    |||
