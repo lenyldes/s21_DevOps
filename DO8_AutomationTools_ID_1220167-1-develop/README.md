@@ -100,7 +100,7 @@ HashiCorp Consul реализует двухуровневую сетевую м
 
 Стенд Part 1 ориентирован на отработку методологии централизованного безагентного конфигурирования серверов. Хост `manager` выступает в роли единого центра управления (Control Node), взаимодействуя с целевыми серверами по закрытой виртуальной сети `192.168.56.0/24`.
 
-```text
+|||text
 +--------------------------------------------------------------------------------------------------------+
 |                                        ХОСТОВАЯ СИСТЕМА (HOST)                                         |
 |                                                                                                        |
@@ -138,7 +138,7 @@ HashiCorp Consul реализует двухуровневую сетевую м
                               |    * rabbitmq (Message Broker)                   |
                               |    * postgres (users_db, reservations_db)        |
                               +--------------------------------------------------+
-```
+|||
 
 #### Спецификация виртуальных машин Part 1
 
@@ -154,7 +154,7 @@ HashiCorp Consul реализует двухуровневую сетевую м
 
 Стенд Part 2 реализует архитектуру Service Mesh с динамическим обнаружением сервисов. Приложение `hotel-service` абстрагировано от реального расположения базы данных `hotels_db`. Весь межсервисный трафик проксируется через пару локальных процессов Envoy, синхронизируемых сервером Consul.
 
-```text
+|||text
 +--------------------------------------------------------------------------------------------------------+
 |                                        ХОСТОВАЯ СИСТЕМА (HOST)                                         |
 |                                                                                                        |
@@ -202,7 +202,7 @@ HashiCorp Consul реализует двухуровневую сетевую м
                   +---------------------[ manager ]--------------------------+
                                      (192.168.56.12)
                                    Ansible Control Node
-```
+|||
 
 #### Спецификация виртуальных машин Part 2
 
@@ -248,7 +248,7 @@ HashiCorp Consul реализует двухуровневую сетевую м
 
 Все исходные коды, конфигурационные манифесты и сценарии развертывания структурированы в директории `src/`:
 
-```
+|||
 .
 ├── README.md                                             # Документация проекта по инженерным стандартам
 ├── README_RUS.md                                         # Исходное учебное задание
@@ -301,7 +301,7 @@ HashiCorp Consul реализует двухуровневую сетевую м
         ├── payment-service/
         ├── report-service/
         └── session-service/
-```
+|||
 
 ### Сводная таблица ключевых конфигурационных файлов проекта
 
@@ -345,10 +345,10 @@ HashiCorp Consul реализует двухуровневую сетевую м
 - **Docker Engine** (для запуска автотестов Newman).
 
 Склонируйте репозиторий и перейдите в каталог проекта:
-```bash
+|||bash
 git clone <URL_РЕПОЗИТОРИЯ>
 cd DO8_AutomationTools_ID_1220167-1-develop/src
-```
+|||
 
 ---
 
@@ -356,82 +356,82 @@ cd DO8_AutomationTools_ID_1220167-1-develop/src
 
 #### Шаг 2.1. Инициализация и запуск виртуальных машин
 Убедитесь, что в файле `Vagrantfile` определена конфигурация первой части (`manager`, `node01`, `node02`), и выполните запуск:
-```bash
+|||bash
 vagrant up
 vagrant status
-```
+|||
 Все три узла должны перейти в состояние `running`.
 
 #### Шаг 2.2. Подготовка узла manager
 Подключитесь к управляющему узлу по SSH:
-```bash
+|||bash
 vagrant ssh manager
-```
+|||
 Выполните проверку базовой сетевой связности:
-```bash
+|||bash
 ping -c 3 192.168.56.11
 ping -c 3 192.168.56.12
-```
+|||
 Сгенерируйте пару SSH-ключей без парольной фразы и экспортируйте открытый ключ на управляемые ноды (пароль пользователя `vagrant` по умолчанию: `vagrant`):
-```bash
+|||bash
 ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
 ssh-copy-id vagrant@192.168.56.11
 ssh-copy-id vagrant@192.168.56.12
-```
+|||
 Проверьте возможность беспарольного входа:
-```bash
+|||bash
 ssh vagrant@192.168.56.11 "hostname"
 ssh vagrant@192.168.56.12 "hostname"
-```
+|||
 
 #### Шаг 2.3. Установка Ansible и проверка инвентаря
 Установите пакетный менеджер и актуальную версию Ansible на машине `manager`:
-```bash
+|||bash
 sudo apt update && sudo apt install -y python3-pip python3-venv tar
 pip install ansible --break-system-packages
 ansible --version
-```
+|||
 Упакуйте исходный код сервисов в архив для ускорения передачи (выполняется из общей папки `/vagrant`):
-```bash
+|||bash
 tar -czf /vagrant/services.tar.gz -C /vagrant services
-```
+|||
 Перейдите в директорию `ansible01` и выполните пинг-тест инвентаря:
-```bash
+|||bash
 cd /vagrant/ansible01
 ansible nodes -i inventory.ini -m ansible.builtin.ping
-```
+|||
 Ожидаемый ответ: статус `SUCCESS` и `"ping": "pong"` для `node01` и `node02`.
 
 #### Шаг 2.4. Запуск плейбука с модульными ролями
 Выполните проверку синтаксиса и запуск сценария:
-```bash
+|||bash
 ansible-playbook -i inventory.ini playbook.yml --syntax-check
 ansible-playbook -i inventory.ini playbook.yml
-```
+|||
 После завершения плейбука проверьте состояние компонентов:
 - **На узле `node01`:**
-  ```bash
+  |||bash
   ssh vagrant@192.168.56.11 "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
-  ```
+  |||
   Все 9 контейнеров (`nginx-proxy`, `session-service`, `gateway-service`, `booking-service`, `hotel-service`, `payment-service`, `loyalty-service`, `report-service`, `postgres`, `rabbitmq`) должны находиться в состоянии `Up`.
 - **На узле `node02`:**
-  ```bash
+  |||bash
   curl -sI http://192.168.56.12 | head -n 1
   # Ожидается: HTTP/1.1 200 OK
   
   ssh vagrant@192.168.56.12 "sudo -u postgres psql -d testbd -c 'SELECT * FROM Person;'"
   # Ожидается вывод 3 записей: Ivan, Petya, Masha
-  ```
+  |||
 
 #### Шаг 2.5. Сквозное автоматизированное тестирование микросервисов через Postman / Newman
 С хостовой машины запустите контейнер Newman для валидации API через проброшенные порты:
-```bash
+|||bash
 docker run --rm \
   -v "$(pwd)":/etc/newman \
   --network host \
   postman/newman run /etc/newman/application_tests.postman_collection.json \
   --env-var API_HOST=127.0.0.1
-```
+|||
 Все 5 сценариев проверки (авторизация пользователя, получение каталога отелей, просмотр конкретного отеля, бронирование номера, просмотр баланса программы лояльности) должны завершиться успешно со статусом `failed: 0`.
 
 ---
@@ -440,43 +440,43 @@ docker run --rm \
 
 #### Шаг 3.1. Пересоздание окружения
 Для очистки ресурсов первой части и создания новой топологии выполните уничтожение старых машин на хосте:
-```bash
+|||bash
 vagrant destroy -f
-```
+|||
 Убедитесь, что в файле `Vagrantfile` активна четырехнодовая конфигурация (`consulServer`, `api`, `manager`, `db`), и запустите стенд:
-```bash
+|||bash
 vagrant up
 vagrant status
-```
+|||
 Проверьте на хосте прослушивание проброшенных портов через утилиту `ss`:
-```bash
+|||bash
 ss -tulpn | grep -E '8500|8082'
-```
+|||
 Порты `8500` (Consul Web UI) и `8082` (Hotels API) должны находиться в состоянии `LISTEN`.
 
 #### Шаг 3.2. Настройка SSH-ключей на узле manager
 Подключитесь к `manager`:
-```bash
+|||bash
 vagrant ssh manager
-```
+|||
 Сгенерируйте и скопируйте ключи на все целевые узлы кластера:
-```bash
+|||bash
 ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
 ssh-copy-id vagrant@192.168.56.10
 ssh-copy-id vagrant@192.168.56.11
 ssh-copy-id vagrant@192.168.56.13
-```
+|||
 Проверьте связность через Ansible:
-```bash
+|||bash
 cd /vagrant/ansible02
 ansible all -i inventory.ini -m ping
-```
+|||
 
 #### Шаг 3.3. Развертывание кластера Consul, Service Mesh и сервисов
 Запустите единый оркестрационный плейбук:
-```bash
+|||bash
 ansible-playbook -i inventory.ini playbook.yml
-```
+|||
 Плейбук последовательно выполнит:
 1. Установку и запуск сервера Consul на `consulServer` (`192.168.56.10`);
 2. Установку агентов Consul Client и бинарника Envoy v1.38.4 на узлах `api` (`192.168.56.11`) и `db` (`192.168.56.13`);
@@ -485,41 +485,41 @@ ansible-playbook -i inventory.ini playbook.yml
 
 #### Шаг 3.4. Проверка состояния кластера Consul и каталога сервисов
 Подключитесь к узлу `consulServer`:
-```bash
+|||bash
 vagrant ssh consulServer
-```
+|||
 Проверьте список участников кластера:
-```bash
+|||bash
 consul members
-```
+|||
 Ожидаемый вывод:
-```text
+|||text
 Node          Address            Status  Type    Build   Protocol  DC   Partition  Segment
 consulServer  192.168.56.10:8301  alive   server  2.0.x   2         dc1  default    <all>
 api           192.168.56.11:8301  alive   client  2.0.x   2         dc1  default    <all>
 db            192.168.56.13:8301  alive   client  2.0.x   2         dc1  default    <all>
-```
+|||
 Проверьте зарегистрированные сервисы:
-```bash
+|||bash
 consul catalog services
-```
+|||
 В каталоге должны присутствовать: `consul`, `db`, `db-sidecar-proxy`, `hotel-service`, `hotel-service-sidecar-proxy`.
 
 #### Шаг 3.5. Инспекция Consul Web UI, HTTP API и DNS
 - **Consul Web UI:** откройте в веб-браузере на хостовой машине адрес `http://localhost:8500` (или `http://192.168.56.10:8500`). Во вкладке **Nodes** отображаются 3 активных узла (узел `consulServer` помечен флагом `Leader`), во вкладке **Services** — зарегистрированные сервисы с зелеными индикаторами проверок здоровья.
 - **HTTP Catalog API:** выполните запрос к реестру сервисов с хоста:
-  ```bash
+  |||bash
   curl -s http://localhost:8500/v1/catalog/service/db | jq .
   curl -s http://localhost:8500/v1/catalog/service/hotel-service | jq .
-  ```
+  |||
 - **DNS-интерфейс Consul:** выполните DNS-резолвинг через порт `8600` на узле `consulServer`:
-  ```bash
+  |||bash
   dig @127.0.0.1 -p 8600 hotel-service.service.consul +short
   # Возвращает: 192.168.56.11
   
   dig @127.0.0.1 -p 8600 db.service.consul +short
   # Возвращает: 192.168.56.13
-  ```
+  |||
 
 ---
 
@@ -529,23 +529,23 @@ consul catalog services
 
 #### Шаг 4.1. Авторизация и получение токена доступа
 Выполните запрос с базовой аутентификацией `Basic Auth` (`User:qwerty` в Base64):
-```bash
+|||bash
 TOKEN=$(curl -s -i -X GET http://localhost:8082/api/v1/hotels/authorize \
   -H "Authorization: Basic VXNlcjpxd2VydHk=" | grep -i "Authorization:" | awk '{print $2}' | tr -d '\r')
 echo "Получен JWT токен: $TOKEN"
-```
+|||
 
 #### Шаг 4.2. Чтение списка отелей (Read)
 Выполните GET-запрос к каталогу отелей:
-```bash
+|||bash
 curl -s -X GET http://localhost:8082/api/v1/hotels \
   -H "Authorization: $TOKEN" | jq .
-```
+|||
 Сервер возвращает статус `200 OK` и список предустановленных отелей. Это подтверждает, что Spring Boot сервис успешно подключается к PostgreSQL через локальный sidecar Envoy по порту `5432`.
 
 #### Шаг 4.3. Создание нового отеля (Create)
 Отправьте POST-запрос с JSON-телом нового объекта:
-```bash
+|||bash
 curl -s -i -X POST http://localhost:8082/api/v1/hotels \
   -H "Authorization: $TOKEN" \
   -H "Content-Type: application/json" \
@@ -557,15 +557,15 @@ curl -s -i -X POST http://localhost:8082/api/v1/hotels \
       "address": "ул. Архитекторов, д. 42"
     }
   }'
-```
+|||
 Сервер возвращает статус `201 Created` и заголовок `Location` со ссылкой на созданный ресурс.
 
 #### Шаг 4.4. Проверка обновленного каталога
 Повторите запрос списка отелей:
-```bash
+|||bash
 curl -s -X GET http://localhost:8082/api/v1/hotels \
   -H "Authorization: $TOKEN" | jq .
-```
+|||
 В теле ответа присутствует созданный объект `DevOps Grand Hotel`.
 
 ---
@@ -576,18 +576,18 @@ curl -s -X GET http://localhost:8082/api/v1/hotels \
 
 #### Шаг 5.1. Фиксация исходного состояния
 С хостовой машины проверьте текущий IP-адрес сервиса `db` в каталоге:
-```bash
+|||bash
 curl -s http://localhost:8500/v1/catalog/service/db | jq '.[0].ServiceAddress'
 # Возвращает: "192.168.56.13"
-```
+|||
 
 #### Шаг 5.2. Смена сетевого адреса на узле db
 Подключитесь к виртуальной машине `db` по SSH, измените статический IP-адрес сетевого интерфейса приватной сети `eth1` с `192.168.56.13` на `192.168.56.99` и перезапустите агентов:
-```bash
+|||bash
 vagrant ssh db
-```
+|||
 Внутри терминала `db`:
-```bash
+|||bash
 # Очищаем старый адрес и назначаем новый IP на интерфейс eth1
 sudo ip addr flush dev eth1
 sudo ip addr add 192.168.56.99/24 dev eth1
@@ -596,22 +596,22 @@ sudo ip link set eth1 up
 # Перезапускаем агент Consul и sidecar-прокси Envoy
 sudo systemctl restart consul consul-envoy
 exit
-```
+|||
 
 #### Шаг 5.3. Фиксация автоматического обновления в Consul
 С хостовой машины выполните опрос каталога Consul:
-```bash
+|||bash
 curl -s http://localhost:8500/v1/catalog/service/db | jq '.[0].ServiceAddress'
 # Возвращает: "192.168.56.99"
-```
+|||
 Gossip-протокол Serf зафиксировал новый сетевой адрес узла, сервер Consul обновил каталог, а агент на узле `api` через xDS gRPC-канал мгновенно передал новый IP в память Envoy.
 
 #### Шаг 5.4. Проверка доступности API без перезапуска клиентского микросервиса
 С хостовой машины отправьте запрос на чтение каталога отелей:
-```bash
+|||bash
 curl -s -X GET http://localhost:8082/api/v1/hotels \
   -H "Authorization: $TOKEN" | jq .
-```
+|||
 Запрос успешно возвращает `200 OK` и полный список записей базы данных. Процесс Java на узле `api` не перезапускался, переменные окружения не менялись, соединение не прерывалось. Эксперимент наглядно подтверждает полную отказоустойчивость и независимость сервисов в архитектуре Service Mesh.
 
 ---
@@ -620,10 +620,10 @@ curl -s -X GET http://localhost:8082/api/v1/hotels \
 
 После завершения демонстрации и тестирования освободите ресурсы хостовой машины:
 - Временная остановка виртуальных машин с сохранением состояния:
-  ```bash
+  |||bash
   vagrant halt
-  ```
+  |||
 - Полное удаление виртуальных машин и виртуальных дисков VirtualBox:
-  ```bash
+  |||bash
   vagrant destroy -f
-  ```
+  |||
