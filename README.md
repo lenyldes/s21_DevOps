@@ -62,7 +62,7 @@
 
 ## Структура репозитория
 
-|||text
+```text
 .
 ├── README.md                                         # Общая документация портфолио DevOps
 ├── D01_Linux.ID_356272-1-develop/                    # Проект 01: Администрирование Linux
@@ -139,7 +139,7 @@
         └── consul01/                                 # HCL-конфигурации HashiCorp Consul
             ├── consul_server.hcl                     # Конфигурация сервера Consul (Raft, Web UI)
             └── consul_client.hcl                     # Конфигурация клиента Consul (gRPC, xDS)
-|||
+```
 
 ---
 
@@ -158,15 +158,15 @@
 ### Быстрый старт
 
 1. **Клонирование репозитория:**
-   |||bash
+   ```bash
    git clone <url-репозитория>
    cd <каталог-репозитория>
    git lfs install
    git lfs pull
-   |||
+   ```
 
 2. **Запуск скриптов системного мониторинга (DO3):**
-   |||bash
+   ```bash
    # Вывод базовой телеметрии системы с сохранением в лог
    cd DO3_LinuxMonitoring_v1_0_ID_356278-3-develop/src/02
    bash main.sh
@@ -174,48 +174,48 @@
    # Анализ файловой структуры каталога
    cd ../05
    bash main.sh /var/log/
-   |||
+   ```
 
 3. **Запуск стресс-тестирования и стека метрик (DO4):**
-   |||bash
+   ```bash
    # Развёртывание Prometheus и Grafana через Docker Compose
    cd DO4_LinuxMonitoring_v2_0_ID_356280-1-develop/src/07
    docker compose up -d
-   |||
+   ```
 
 4. **Сборка и запуск контейнеризованного FastCGI-сервера (DO5):**
-   |||bash
+   ```bash
    # Запуск multi-container стека с Reverse Proxy
    cd DO5_SimpleDocker.ID_356282-1-develop/src
    docker compose up --build -d
    curl http://localhost:80/
-   |||
+   ```
 
 5. **Локальный прогон тестов и пайплайна (DO6):**
-   |||bash
+   ```bash
    # Локальный прогон тестов приложения
    cd DO6_CICD.ID_356283-1-develop/src
    bash test.sh
-   |||
+   ```
 
 6. **Локальный запуск микросервисного стека бронирования (DO7):**
-   |||bash
+   ```bash
    # Запуск 9 контейнеров стека бронирования через Docker Compose
    cd DO7_Docker_Compose_ID_1219717-1-develop/src
    docker compose up -d --build
    curl http://localhost:8087/api/v1/hotels
-   |||
+   ```
 
 7. **Развёртывание кластера Docker Swarm на виртуальных машинах (DO7):**
-   |||bash
+   ```bash
    # Подъём кластера виртуализации через Vagrant
    cd DO7_Docker_Compose_ID_1219717-1-develop/src
    vagrant up
    vagrant ssh manager01
-   |||
+   ```
 
 8. **Автоматизация конфигурации серверов через Ansible (DO8):**
-   |||bash
+   ```bash
    # Развёртывание виртуальных машин стенда Ansible
    cd DO8_AutomationTools_ID_1220167-1-develop/src
    vagrant up manager node01 node02
@@ -224,10 +224,10 @@
    vagrant ssh manager
    cd /vagrant/ansible01
    ansible-playbook -i inventory.ini playbook.yml
-   |||
+   ```
 
 9. **Развёртывание Service Discovery на HashiCorp Consul (DO8):**
-   |||bash
+   ```bash
    # Развёртывание кластера Consul и микросервиса отелей
    cd DO8_AutomationTools_ID_1220167-1-develop/src
    vagrant up consulServer api db
@@ -237,4 +237,4 @@
 
    # Проверка статуса сервисов через HTTP API Consul
    curl http://192.168.56.20:8500/v1/catalog/services
-   |||
+   ```
