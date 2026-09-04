@@ -101,7 +101,7 @@ HashiCorp Consul реализует двухуровневую сетевую м
 
 Стенд Part 1 заточен под отработку методологии централизованного безагентного конфигурирования серверов. Хост `manager` — единый центр управления (Control Node), взаимодействующий с целевыми серверами через закрытую виртуальную сеть `192.168.56.0/24`.
 
-|||text
+```text
 +--------------------------------------------------------------------------------------------------------+
 |                                        ХОСТОВАЯ СИСТЕМА (HOST)                                         |
 |                                                                                                        |
@@ -139,7 +139,7 @@ HashiCorp Consul реализует двухуровневую сетевую м
                               |    * rabbitmq (Message Broker)                   |
                               |    * postgres (users_db, reservations_db)        |
                               +--------------------------------------------------+
-|||
+```
 
 #### Спецификация виртуальных машин Part 1
 
@@ -155,7 +155,7 @@ HashiCorp Consul реализует двухуровневую сетевую м
 
 Стенд Part 2 реализует архитектуру Service Mesh с динамическим обнаружением сервисов. Приложение `hotel-service` абстрагировано от реального расположения базы данных `hotels_db`. Весь межсервисный трафик проксируется через пару локальных процессов Envoy, синхронизируемых сервером Consul.
 
-|||text
+```text
 +--------------------------------------------------------------------------------------------------------+
 |                                        ХОСТОВАЯ СИСТЕМА (HOST)                                         |
 |                                                                                                        |
@@ -203,7 +203,7 @@ HashiCorp Consul реализует двухуровневую сетевую м
                   +---------------------[ manager ]--------------------------+
                                      (192.168.56.12)
                                    Ansible Control Node
-|||
+```
 
 #### Спецификация виртуальных машин Part 2
 
@@ -247,52 +247,52 @@ HashiCorp Consul реализует двухуровневую сетевую м
 
 ## Структура проекта и реализованные модули
 
-Все исходные коды, конфигурационные манифесты и сценарии развертывания структурированы в директории `src/`:
+Исходники, конфиги и скрипты развёртывания лежат в `src/`:
 
-|||
+```
 .
-├── README.md                                             # Документация проекта по инженерным стандартам
+├── README.md                                             # Документация проекта
 ├── README_RUS.md                                         # Исходное учебное задание
 └── src/
-    ├── Vagrantfile                                       # Манифест развертывания мультинодовых стендов Vagrant
-    ├── REPORT.MD                                         # Подробный технический отчет с иллюстрациями
-    ├── docker-compose.yml                                # Оркестрация микросервисного приложения Part 1
-    ├── application_tests.postman_collection.json         # Коллекция интеграционных тестов Postman
-    ├── ansible01/                                        # Модуль автоматизации Part 1 (Ansible Provisioning)
-    │   ├── inventory.ini                                 # Инвентарь хостов (manager, node01, node02)
-    │   ├── playbook.yml                                  # Главный плейбук деплоя ролей
-    │   └── roles/                                        # Модульные роли Ansible
-    │       ├── application/                              # Роль установки Docker и запуска микросервисов
+    ├── Vagrantfile                                       # Vagrant-конфиг многоузлового стенда
+    ├── REPORT.MD                                         # Технический отчёт с иллюстрациями
+    ├── docker-compose.yml                                # Docker Compose-стек микросервисов Part 1
+    ├── application_tests.postman_collection.json         # Коллекция тестов Postman
+    ├── ansible01/                                        # Автоматизация Part 1 (Ansible)
+    │   ├── inventory.ini                                 # Инвентори (manager, node01, node02)
+    │   ├── playbook.yml                                  # Главный плейбук развёртывания ролей
+    │   └── roles/                                        # Роли Ansible
+    │       ├── application/                              # Установка Docker и запуск микросервисов
     │       │   ├── defaults/main.yml                     # Переменные по умолчанию (docker_user)
-    │       │   └── tasks/main.yml                        # Задачи установки Docker CE и сборки Compose
-    │       ├── apache/                                   # Роль развертывания Apache HTTP Server
-    │       │   └── tasks/main.yml                        # Задачи установки и запуска apache2
-    │       └── postgres/                                 # Роль СУБД PostgreSQL
-    │           └── tasks/main.yml                        # Задачи настройки сетевого доступа и инициализации БД
-    ├── consul01/                                         # Конфигурационные файлы HashiCorp Consul (HCL)
+    │       │   └── tasks/main.yml                        # Установка Docker CE и сборка Compose
+    │       ├── apache/                                   # Развёртывание Apache HTTP Server
+    │       │   └── tasks/main.yml                        # Установка и запуск apache2
+    │       └── postgres/                                 # СУБД PostgreSQL
+    │           └── tasks/main.yml                        # Настройка сетевого доступа и инициализация БД
+    ├── consul01/                                         # Конфиги HashiCorp Consul (HCL)
     │   ├── consul_server.hcl                             # Конфиг сервера Consul (Raft, Web UI, bootstrap)
-    │   └── consul_client.hcl                             # Конфиг агента клиента Consul (gRPC 8502, retry_join)
-    ├── ansible02/                                        # Модуль Service Discovery Part 2 (Consul & Envoy)
-    │   ├── inventory.ini                                 # Инвентарь хостов (consulServer, api, manager, db)
-    │   ├── playbook.yml                                  # Главный оркестрационный плейбук Service Discovery
-    │   └── roles/                                        # Специализированные роли Ansible
-    │       ├── install_consul_server/                    # Развертывание и запуск сервера Consul
-    │       │   ├── tasks/main.yml                        # Установка пакета, репозитория и systemd службы
-    │       │   └── handlers/main.yml                     # Хэндлер перезапуска демона consul
-    │       ├── install_consul_client/                    # Развертывание агентов Consul и Envoy Sidecar
-    │       │   ├── files/                                # Манифесты сервисов и системные юниты
+    │   └── consul_client.hcl                             # Конфиг клиента Consul (gRPC 8502, retry_join)
+    ├── ansible02/                                        # Service Discovery Part 2 (Consul & Envoy)
+    │   ├── inventory.ini                                 # Инвентори (consulServer, api, manager, db)
+    │   ├── playbook.yml                                  # Главный плейбук Service Discovery
+    │   └── roles/                                        # Роли Ansible
+    │       ├── install_consul_server/                    # Развёртывание и запуск сервера Consul
+    │       │   ├── tasks/main.yml                        # Установка пакета, репозитория и systemd-службы
+    │       │   └── handlers/main.yml                     # Хэндлер перезапуска consul
+    │       ├── install_consul_client/                    # Развёртывание агентов Consul и Envoy Sidecar
+    │       │   ├── files/                                # Манифесты сервисов и systemd-юниты
     │       │   │   ├── api_service.hcl                   # Регистрация hotel-service с upstream к db
     │       │   │   ├── db_service.hcl                    # Регистрация сервиса db с sidecar_service
-    │       │   │   ├── consul-envoy-db.service           # systemd-юнит sidecar-прокси базы данных
+    │       │   │   ├── consul-envoy-db.service           # systemd-юнит sidecar-прокси БД
     │       │   │   └── consul-envoy-holel.service        # systemd-юнит sidecar-прокси микросервиса отелей
     │       │   ├── tasks/main.yml                        # Установка Consul, бинарника Envoy 1.38.4, systemd
-    │       │   └── handlers/main.yml                     # Хэндлер перезапуска демона consul
-    │       ├── install_db/                               # Идемпотентное развертывание PostgreSQL
+    │       │   └── handlers/main.yml                     # Хэндлер перезапуска consul
+    │       ├── install_db/                               # Идемпотентное развёртывание PostgreSQL
     │       │   └── tasks/main.yml                        # community.postgresql (hotels_db, пароли, acl)
-    │       └── install_hotels_service/                   # Сборка и запуск Spring Boot микросервиса
+    │       └── install_hotels_service/                   # Сборка и запуск Spring Boot-микросервиса
     │           ├── files/hotels.service                  # systemd-юнит с зависимостью от consul-envoy
     │           └── tasks/main.yml                        # JDK 21, Maven, сборка jar, экспорт переменных
-    └── services/                                         # Исходный код микросервисов (Java Spring Boot)
+    └── services/                                         # Исходники микросервисов (Java Spring Boot)
         ├── booking-service/
         ├── database/
         ├── gateway-service/
@@ -302,251 +302,251 @@ HashiCorp Consul реализует двухуровневую сетевую м
         ├── payment-service/
         ├── report-service/
         └── session-service/
-|||
+```
 
-### Сводная таблица ключевых конфигурационных файлов проекта
+### Сводная таблица конфигурационных файлов
 
 | Относительный путь к файлу | Назначение файла | Применяемые модули / Директивы / Технологии |
 | :--- | :--- | :--- |
-| [./src/Vagrantfile](./src/Vagrantfile) | Спецификация виртуальных машин кластера | Ruby DSL, `config.vm.define`, `private_network`, `forwarded_port`, VirtualBox provider |
-| [./src/docker-compose.yml](./src/docker-compose.yml) | Декларация контейнеризованного стека Part 1 | Docker Compose v2, 9 сервисов, healthcheck, volume mounts, ports mapping |
-| [./src/application_tests.postman_collection.json](./src/application_tests.postman_collection.json) | Набор сквозных автотестов API | Postman Schema v2.1.0, Newman CLI, Basic Auth, JWT Bearer Token, Assertions |
-| [./src/REPORT.MD](./src/REPORT.MD) | Технический отчет о выполнении этапов | Markdown, документирование инцидентов, анализ журналов, снимки экрана |
-| [./src/ansible01/inventory.ini](./src/ansible01/inventory.ini) | Реестр управляемых узлов стенда Part 1 | INI формат, группы `[managers]`, `[nodes]`, переменная `ansible_python_interpreter` |
-| [./src/ansible01/playbook.yml](./src/ansible01/playbook.yml) | Оркестрационный плейбук ролей Part 1 | YAML, `hosts`, `become: yes`, подключение ролей `application`, `apache`, `postgres` |
+| [./src/Vagrantfile](./src/Vagrantfile) | Конфигурация виртуальных машин кластера | Ruby DSL, `config.vm.define`, `private_network`, `forwarded_port`, VirtualBox provider |
+| [./src/docker-compose.yml](./src/docker-compose.yml) | Контейнерный стек Part 1 | Docker Compose v2, 9 сервисов, healthcheck, volume mounts, ports mapping |
+| [./src/application_tests.postman_collection.json](./src/application_tests.postman_collection.json) | Сквозные тесты API | Postman Schema v2.1.0, Newman CLI, Basic Auth, JWT Bearer Token, Assertions |
+| [./src/REPORT.MD](./src/REPORT.MD) | Технический отчёт по этапам работ | Markdown, документирование инцидентов, анализ журналов, снимки экрана |
+| [./src/ansible01/inventory.ini](./src/ansible01/inventory.ini) | Инвентори стенда Part 1 | INI формат, группы `[managers]`, `[nodes]`, переменная `ansible_python_interpreter` |
+| [./src/ansible01/playbook.yml](./src/ansible01/playbook.yml) | Плейбук развёртывания Part 1 | YAML, `hosts`, `become: yes`, подключение ролей `application`, `apache`, `postgres` |
 | [./src/ansible01/roles/application/defaults/main.yml](./src/ansible01/roles/application/defaults/main.yml) | Переменные по умолчанию роли приложения | `docker_user: "{{ ansible_user }}"` |
-| [./src/ansible01/roles/application/tasks/main.yml](./src/ansible01/roles/application/tasks/main.yml) | Задачи подготовки Docker и деплоя Compose | `deb822_repository`, `apt`, `user`, `file`, `copy`, `unarchive`, `command` |
-| [./src/ansible01/roles/apache/tasks/main.yml](./src/ansible01/roles/apache/tasks/main.yml) | Задачи установки веб-сервера Apache | `ansible.builtin.apt`, `ansible.builtin.service` (apache2) |
-| [./src/ansible01/roles/postgres/tasks/main.yml](./src/ansible01/roles/postgres/tasks/main.yml) | Задачи СУБД PostgreSQL и сетевого доступа | `apt`, `service`, `shell` (psql), `lineinfile` (`postgresql.conf`, `pg_hba.conf`) |
-| [./src/consul01/consul_server.hcl](./src/consul01/consul_server.hcl) | Конфигурация сервера HashiCorp Consul | HCL, `server = true`, `bootstrap_expect = 1`, `ui_config`, `{{ GetInterfaceIP "eth1" }}` |
-| [./src/consul01/consul_client.hcl](./src/consul01/consul_client.hcl) | Конфигурация клиента HashiCorp Consul | HCL, `server = false`, `retry_join`, `ports { grpc = 8502 }`, dynamic advertise IP |
-| [./src/ansible02/inventory.ini](./src/ansible02/inventory.ini) | Реестр управляемых узлов стенда Part 2 | Группы `[api_servers]`, `[db_servers]`, `[consul_servers]`, `[consul_clients]` |
-| [./src/ansible02/playbook.yml](./src/ansible02/playbook.yml) | Главный плейбук развертывания Part 2 | Таргетинг ролей по группам: Consul Server, Consul Client, DB, Hotels Service |
+| [./src/ansible01/roles/application/tasks/main.yml](./src/ansible01/roles/application/tasks/main.yml) | Установка Docker и развёртывание Compose | `deb822_repository`, `apt`, `user`, `file`, `copy`, `unarchive`, `command` |
+| [./src/ansible01/roles/apache/tasks/main.yml](./src/ansible01/roles/apache/tasks/main.yml) | Установка веб-сервера Apache | `ansible.builtin.apt`, `ansible.builtin.service` (apache2) |
+| [./src/ansible01/roles/postgres/tasks/main.yml](./src/ansible01/roles/postgres/tasks/main.yml) | Настройка PostgreSQL и сетевого доступа | `apt`, `service`, `shell` (psql), `lineinfile` (`postgresql.conf`, `pg_hba.conf`) |
+| [./src/consul01/consul_server.hcl](./src/consul01/consul_server.hcl) | Конфиг сервера HashiCorp Consul | HCL, `server = true`, `bootstrap_expect = 1`, `ui_config`, `{{ GetInterfaceIP "eth1" }}` |
+| [./src/consul01/consul_client.hcl](./src/consul01/consul_client.hcl) | Конфиг клиента HashiCorp Consul | HCL, `server = false`, `retry_join`, `ports { grpc = 8502 }`, dynamic advertise IP |
+| [./src/ansible02/inventory.ini](./src/ansible02/inventory.ini) | Инвентори стенда Part 2 | Группы `[api_servers]`, `[db_servers]`, `[consul_servers]`, `[consul_clients]` |
+| [./src/ansible02/playbook.yml](./src/ansible02/playbook.yml) | Плейбук развёртывания Part 2 | Таргетинг ролей по группам: Consul Server, Consul Client, DB, Hotels Service |
 | [./src/ansible02/roles/install_consul_server/tasks/main.yml](./src/ansible02/roles/install_consul_server/tasks/main.yml) | Установка и запуск сервера Consul | `get_url` (HashiCorp GPG), `deb822_repository`, `apt`, `copy`, `systemd` |
-| [./src/ansible02/roles/install_consul_server/handlers/main.yml](./src/ansible02/roles/install_consul_server/handlers/main.yml) | Обработчик событий перезапуска сервера | `ansible.builtin.systemd` (перезапуск службы `consul`) |
-| [./src/ansible02/roles/install_consul_client/files/api_service.hcl](./src/ansible02/roles/install_consul_client/files/api_service.hcl) | Регистрация API отелей в сервис-каталоге | HCL, `service`, `connect { sidecar_service { proxy { upstreams } } }` |
-| [./src/ansible02/roles/install_consul_client/files/db_service.hcl](./src/ansible02/roles/install_consul_client/files/db_service.hcl) | Регистрация базы данных в сервис-каталоге | HCL, `service { name = "db", port = 5432, connect { sidecar_service {} } }` |
-| [./src/ansible02/roles/install_consul_client/files/consul-envoy-holel.service](./src/ansible02/roles/install_consul_client/files/consul-envoy-holel.service) | systemd сервис прокси микросервиса отелей | `ExecStart=/usr/bin/consul connect envoy -sidecar-for=hotel-service` |
-| [./src/ansible02/roles/install_consul_client/files/consul-envoy-db.service](./src/ansible02/roles/install_consul_client/files/consul-envoy-db.service) | systemd сервис прокси базы данных | `ExecStart=/usr/bin/consul connect envoy -sidecar-for=db` |
-| [./src/ansible02/roles/install_consul_client/tasks/main.yml](./src/ansible02/roles/install_consul_client/tasks/main.yml) | Развертывание клиентов и Envoy | `apt`, `copy`, `get_url` (Envoy v1.38.4 binary), `systemd` (`consul`, `consul-envoy`) |
-| [./src/ansible02/roles/install_consul_client/handlers/main.yml](./src/ansible02/roles/install_consul_client/handlers/main.yml) | Обработчик событий перезапуска клиента | `ansible.builtin.systemd` (перезапуск службы `consul`) |
-| [./src/ansible02/roles/install_db/tasks/main.yml](./src/ansible02/roles/install_db/tasks/main.yml) | Декларативная настройка PostgreSQL | `apt` (`python3-psycopg2`, `acl`), `community.postgresql.postgresql_db/user` |
-| [./src/ansible02/roles/install_hotels_service/files/hotels.service](./src/ansible02/roles/install_hotels_service/files/hotels.service) | systemd юнит запуска Java-приложения | `After/Requires=consul-envoy.service`, `EnvironmentFile=/etc/environment`, `java -jar` |
-| [./src/ansible02/roles/install_hotels_service/tasks/main.yml](./src/ansible02/roles/install_hotels_service/tasks/main.yml) | Сборка и деплой Spring Boot сервиса | `apt` (JDK 21, Maven), `copy`, `lineinfile`, `command` (mvnw package), `systemd` |
+| [./src/ansible02/roles/install_consul_server/handlers/main.yml](./src/ansible02/roles/install_consul_server/handlers/main.yml) | Хэндлер перезапуска сервера | `ansible.builtin.systemd` (перезапуск службы `consul`) |
+| [./src/ansible02/roles/install_consul_client/files/api_service.hcl](./src/ansible02/roles/install_consul_client/files/api_service.hcl) | Регистрация API отелей в каталоге сервисов | HCL, `service`, `connect { sidecar_service { proxy { upstreams } } }` |
+| [./src/ansible02/roles/install_consul_client/files/db_service.hcl](./src/ansible02/roles/install_consul_client/files/db_service.hcl) | Регистрация БД в каталоге сервисов | HCL, `service { name = "db", port = 5432, connect { sidecar_service {} } }` |
+| [./src/ansible02/roles/install_consul_client/files/consul-envoy-holel.service](./src/ansible02/roles/install_consul_client/files/consul-envoy-holel.service) | systemd-сервис прокси микросервиса отелей | `ExecStart=/usr/bin/consul connect envoy -sidecar-for=hotel-service` |
+| [./src/ansible02/roles/install_consul_client/files/consul-envoy-db.service](./src/ansible02/roles/install_consul_client/files/consul-envoy-db.service) | systemd-сервис прокси БД | `ExecStart=/usr/bin/consul connect envoy -sidecar-for=db` |
+| [./src/ansible02/roles/install_consul_client/tasks/main.yml](./src/ansible02/roles/install_consul_client/tasks/main.yml) | Развёртывание клиентов и Envoy | `apt`, `copy`, `get_url` (Envoy v1.38.4 binary), `systemd` (`consul`, `consul-envoy`) |
+| [./src/ansible02/roles/install_consul_client/handlers/main.yml](./src/ansible02/roles/install_consul_client/handlers/main.yml) | Хэндлер перезапуска клиента | `ansible.builtin.systemd` (перезапуск службы `consul`) |
+| [./src/ansible02/roles/install_db/tasks/main.yml](./src/ansible02/roles/install_db/tasks/main.yml) | Настройка PostgreSQL | `apt` (`python3-psycopg2`, `acl`), `community.postgresql.postgresql_db/user` |
+| [./src/ansible02/roles/install_hotels_service/files/hotels.service](./src/ansible02/roles/install_hotels_service/files/hotels.service) | systemd-юнит запуска Java-приложения | `After/Requires=consul-envoy.service`, `EnvironmentFile=/etc/environment`, `java -jar` |
+| [./src/ansible02/roles/install_hotels_service/tasks/main.yml](./src/ansible02/roles/install_hotels_service/tasks/main.yml) | Сборка и деплой Spring Boot-сервиса | `apt` (JDK 21, Maven), `copy`, `lineinfile`, `command` (mvnw package), `systemd` |
 
 ---
 
 ## Инструкция по сборке, тестированию и запуску
 
-### 1. Предварительные требования к хостовой системе
-Для запуска стендов на хостовой рабочей станции должны быть установлены:
+### 1. Требования к хост-системе
+Для запуска стендов на хосте должны быть установлены:
 - **HashiCorp Vagrant** (версия `>= 2.3.0`);
 - **Oracle VirtualBox** (версия `>= 7.0`);
 - **Git**, **curl**, **jq**, **OpenSSH Client**;
 - **Docker Engine** (для запуска автотестов Newman).
 
 Склонируйте репозиторий и перейдите в каталог проекта:
-|||bash
+```bash
 git clone <URL_РЕПОЗИТОРИЯ>
 cd DO8_AutomationTools_ID_1220167-1-develop/src
-|||
+```
 
 ---
 
-### 2. Развертывание и тестирование стенда Part 1 (Ansible Automation)
+### 2. Развёртывание и тестирование стенда Part 1 (Ansible Automation)
 
 #### Шаг 2.1. Инициализация и запуск виртуальных машин
-Убедитесь, что в файле `Vagrantfile` определена конфигурация первой части (`manager`, `node01`, `node02`), и выполните запуск:
-|||bash
+Проверьте, что в `Vagrantfile` активна конфигурация Part 1 (`manager`, `node01`, `node02`), и запустите стенд:
+```bash
 vagrant up
 vagrant status
-|||
-Все три узла должны перейти в состояние `running`.
+```
+Все три ноды должны быть в статусе `running`.
 
-#### Шаг 2.2. Подготовка узла manager
-Подключитесь к управляющему узлу по SSH:
-|||bash
+#### Шаг 2.2. Подготовка ноды manager
+Подключитесь к управляющей ноде по SSH:
+```bash
 vagrant ssh manager
-|||
-Выполните проверку базовой сетевой связности:
-|||bash
+```
+Проверьте сетевую связность:
+```bash
 ping -c 3 192.168.56.11
 ping -c 3 192.168.56.12
-|||
-Сгенерируйте пару SSH-ключей без парольной фразы и экспортируйте открытый ключ на управляемые ноды (пароль пользователя `vagrant` по умолчанию: `vagrant`):
-|||bash
+```
+Сгенерируйте SSH-ключи без пароля и скопируйте публичный ключ на управляемые ноды (пароль пользователя `vagrant` по умолчанию: `vagrant`):
+```bash
 ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
 ssh-copy-id vagrant@192.168.56.11
 ssh-copy-id vagrant@192.168.56.12
-|||
-Проверьте возможность беспарольного входа:
-|||bash
+```
+Проверьте беспарольный вход:
+```bash
 ssh vagrant@192.168.56.11 "hostname"
 ssh vagrant@192.168.56.12 "hostname"
-|||
+```
 
 #### Шаг 2.3. Установка Ansible и проверка инвентаря
-Установите пакетный менеджер и актуальную версию Ansible на машине `manager`:
-|||bash
+Установите Ansible на `manager`:
+```bash
 sudo apt update && sudo apt install -y python3-pip python3-venv tar
 pip install ansible --break-system-packages
 ansible --version
-|||
-Упакуйте исходный код сервисов в архив для ускорения передачи (выполняется из общей папки `/vagrant`):
-|||bash
+```
+Запакуйте исходники сервисов в архив для быстрой передачи (выполняется из общей папки `/vagrant`):
+```bash
 tar -czf /vagrant/services.tar.gz -C /vagrant services
-|||
-Перейдите в директорию `ansible01` и выполните пинг-тест инвентаря:
-|||bash
+```
+Перейдите в `ansible01` и выполните пинг-тест инвентаря:
+```bash
 cd /vagrant/ansible01
 ansible nodes -i inventory.ini -m ansible.builtin.ping
-|||
+```
 Ожидаемый ответ: статус `SUCCESS` и `"ping": "pong"` для `node01` и `node02`.
 
-#### Шаг 2.4. Запуск плейбука с модульными ролями
-Выполните проверку синтаксиса и запуск сценария:
-|||bash
+#### Шаг 2.4. Запуск плейбука с ролями
+Проверьте синтаксис и запустите плейбук:
+```bash
 ansible-playbook -i inventory.ini playbook.yml --syntax-check
 ansible-playbook -i inventory.ini playbook.yml
-|||
-После завершения плейбука проверьте состояние компонентов:
-- **На узле `node01`:**
-  |||bash
+```
+После выполнения плейбука проверьте состояние компонентов:
+- **На `node01`:**
+  ```bash
   ssh vagrant@192.168.56.11 "docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
-  |||
-  Все 9 контейнеров (`nginx-proxy`, `session-service`, `gateway-service`, `booking-service`, `hotel-service`, `payment-service`, `loyalty-service`, `report-service`, `postgres`, `rabbitmq`) должны находиться в состоянии `Up`.
-- **На узле `node02`:**
-  |||bash
+  ```
+  Все 9 контейнеров (`nginx-proxy`, `session-service`, `gateway-service`, `booking-service`, `hotel-service`, `payment-service`, `loyalty-service`, `report-service`, `postgres`, `rabbitmq`) должны быть в статусе `Up`.
+- **На `node02`:**
+  ```bash
   curl -sI http://192.168.56.12 | head -n 1
   # Ожидается: HTTP/1.1 200 OK
   
   ssh vagrant@192.168.56.12 "sudo -u postgres psql -d testbd -c 'SELECT * FROM Person;'"
   # Ожидается вывод 3 записей: Ivan, Petya, Masha
-  |||
+  ```
 
-#### Шаг 2.5. Сквозное автоматизированное тестирование микросервисов через Postman / Newman
-С хостовой машины запустите контейнер Newman для валидации API через проброшенные порты:
-|||bash
+#### Шаг 2.5. Сквозное тестирование микросервисов через Postman / Newman
+С хоста запустите Newman в Docker для проверки API через проброшенные порты:
+```bash
 docker run --rm \
   -v "$(pwd)":/etc/newman \
   --network host \
   postman/newman run /etc/newman/application_tests.postman_collection.json \
   --env-var API_HOST=127.0.0.1
-|||
-Все 5 сценариев проверки (авторизация пользователя, получение каталога отелей, просмотр конкретного отеля, бронирование номера, просмотр баланса программы лояльности) должны завершиться успешно со статусом `failed: 0`.
+```
+Все 5 сценариев (авторизация пользователя, получение каталога отелей, просмотр конкретного отеля, бронирование номера, просмотр баланса программы лояльности) должны пройти со статусом `failed: 0`.
 
 ---
 
-### 3. Развертывание и тестирование стенда Part 2 (Consul Service Discovery)
+### 3. Развёртывание и тестирование стенда Part 2 (Consul Service Discovery)
 
 #### Шаг 3.1. Пересоздание окружения
-Для очистки ресурсов первой части и создания новой топологии выполните уничтожение старых машин на хосте:
-|||bash
+Чтобы очистить ресурсы Part 1 и создать новую топологию, удалите старые машины на хосте:
+```bash
 vagrant destroy -f
-|||
-Убедитесь, что в файле `Vagrantfile` активна четырехнодовая конфигурация (`consulServer`, `api`, `manager`, `db`), и запустите стенд:
-|||bash
+```
+Проверьте, что в `Vagrantfile` активна четырёхузловая конфигурация (`consulServer`, `api`, `manager`, `db`), и запустите стенд:
+```bash
 vagrant up
 vagrant status
-|||
-Проверьте на хосте прослушивание проброшенных портов через утилиту `ss`:
-|||bash
+```
+Проверьте проброшенные порты через `ss`:
+```bash
 ss -tulpn | grep -E '8500|8082'
-|||
-Порты `8500` (Consul Web UI) и `8082` (Hotels API) должны находиться в состоянии `LISTEN`.
+```
+Порты `8500` (Consul Web UI) и `8082` (Hotels API) должны быть в `LISTEN`.
 
-#### Шаг 3.2. Настройка SSH-ключей на узле manager
+#### Шаг 3.2. Настройка SSH-ключей на ноде manager
 Подключитесь к `manager`:
-|||bash
+```bash
 vagrant ssh manager
-|||
-Сгенерируйте и скопируйте ключи на все целевые узлы кластера:
-|||bash
+```
+Сгенерируйте ключи и скопируйте на все узлы кластера:
+```bash
 ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
 ssh-copy-id vagrant@192.168.56.10
 ssh-copy-id vagrant@192.168.56.11
 ssh-copy-id vagrant@192.168.56.13
-|||
+```
 Проверьте связность через Ansible:
-|||bash
+```bash
 cd /vagrant/ansible02
 ansible all -i inventory.ini -m ping
-|||
+```
 
-#### Шаг 3.3. Развертывание кластера Consul, Service Mesh и сервисов
-Запустите единый оркестрационный плейбук:
-|||bash
+#### Шаг 3.3. Развёртывание кластера Consul, Service Mesh и сервисов
+Запустите плейбук:
+```bash
 ansible-playbook -i inventory.ini playbook.yml
-|||
-Плейбук последовательно выполнит:
+```
+Плейбук по очереди выполнит:
 1. Установку и запуск сервера Consul на `consulServer` (`192.168.56.10`);
-2. Установку агентов Consul Client и бинарника Envoy v1.38.4 на узлах `api` (`192.168.56.11`) и `db` (`192.168.56.13`);
-3. Создание базы данных `hotels_db` и пользователя в PostgreSQL на узле `db`;
-4. Сборку jar-пакета, экспорт переменных подключения к loopback `127.0.0.1:5432` и запуск сервиса `hotels.service` на узле `api`.
+2. Установку агентов Consul Client и бинарника Envoy v1.38.4 на нодах `api` (`192.168.56.11`) и `db` (`192.168.56.13`);
+3. Создание базы данных `hotels_db` и пользователя в PostgreSQL на `db`;
+4. Сборку jar-пакета, экспорт переменных подключения к loopback `127.0.0.1:5432` и запуск сервиса `hotels.service` на `api`.
 
 #### Шаг 3.4. Проверка состояния кластера Consul и каталога сервисов
-Подключитесь к узлу `consulServer`:
-|||bash
+Подключитесь к `consulServer`:
+```bash
 vagrant ssh consulServer
-|||
+```
 Проверьте список участников кластера:
-|||bash
+```bash
 consul members
-|||
+```
 Ожидаемый вывод:
-|||text
+```text
 Node          Address            Status  Type    Build   Protocol  DC   Partition  Segment
 consulServer  192.168.56.10:8301  alive   server  2.0.x   2         dc1  default    <all>
 api           192.168.56.11:8301  alive   client  2.0.x   2         dc1  default    <all>
 db            192.168.56.13:8301  alive   client  2.0.x   2         dc1  default    <all>
-|||
+```
 Проверьте зарегистрированные сервисы:
-|||bash
+```bash
 consul catalog services
-|||
-В каталоге должны присутствовать: `consul`, `db`, `db-sidecar-proxy`, `hotel-service`, `hotel-service-sidecar-proxy`.
+```
+В каталоге должны быть: `consul`, `db`, `db-sidecar-proxy`, `hotel-service`, `hotel-service-sidecar-proxy`.
 
-#### Шаг 3.5. Инспекция Consul Web UI, HTTP API и DNS
-- **Consul Web UI:** откройте в веб-браузере на хостовой машине адрес `http://localhost:8500` (или `http://192.168.56.10:8500`). Во вкладке **Nodes** отображаются 3 активных узла (узел `consulServer` помечен флагом `Leader`), во вкладке **Services** — зарегистрированные сервисы с зелеными индикаторами проверок здоровья.
-- **HTTP Catalog API:** выполните запрос к реестру сервисов с хоста:
-  |||bash
+#### Шаг 3.5. Проверка Consul Web UI, HTTP API и DNS
+- **Consul Web UI:** откройте в браузере на хосте `http://localhost:8500` (или `http://192.168.56.10:8500`). Во вкладке **Nodes** — 3 активных узла (узел `consulServer` помечен флагом `Leader`), во вкладке **Services** — зарегистрированные сервисы с зелёными индикаторами проверок здоровья.
+- **HTTP Catalog API:** запросите реестр сервисов с хоста:
+  ```bash
   curl -s http://localhost:8500/v1/catalog/service/db | jq .
   curl -s http://localhost:8500/v1/catalog/service/hotel-service | jq .
-  |||
-- **DNS-интерфейс Consul:** выполните DNS-резолвинг через порт `8600` на узле `consulServer`:
-  |||bash
+  ```
+- **DNS-интерфейс Consul:** резолвните DNS через порт `8600` на `consulServer`:
+  ```bash
   dig @127.0.0.1 -p 8600 hotel-service.service.consul +short
   # Возвращает: 192.168.56.11
   
   dig @127.0.0.1 -p 8600 db.service.consul +short
   # Возвращает: 192.168.56.13
-  |||
+  ```
 
 ---
 
 ### 4. Тестирование CRUD-операций сервиса отелей (REST API)
 
-Тестирование выполняется с хостовой машины через проброшенный порт `8082`.
+Тестирование проходит с хоста через проброшенный порт `8082`.
 
 #### Шаг 4.1. Авторизация и получение токена доступа
-Выполните запрос с базовой аутентификацией `Basic Auth` (`User:qwerty` в Base64):
-|||bash
+Выполните запрос с Basic Auth (`User:qwerty` в Base64):
+```bash
 TOKEN=$(curl -s -i -X GET http://localhost:8082/api/v1/hotels/authorize \
   -H "Authorization: Basic VXNlcjpxd2VydHk=" | grep -i "Authorization:" | awk '{print $2}' | tr -d '\r')
 echo "Получен JWT токен: $TOKEN"
-|||
+```
 
 #### Шаг 4.2. Чтение списка отелей (Read)
-Выполните GET-запрос к каталогу отелей:
-|||bash
+Выполните GET-запрос к списку отелей:
+```bash
 curl -s -X GET http://localhost:8082/api/v1/hotels \
   -H "Authorization: $TOKEN" | jq .
-|||
-Сервер возвращает статус `200 OK` и список предустановленных отелей. Это подтверждает, что Spring Boot сервис успешно подключается к PostgreSQL через локальный sidecar Envoy по порту `5432`.
+```
+Сервер вернёт `200 OK` и список предустановленных отелей. Это подтверждает, что Spring Boot-сервис подключается к PostgreSQL через локальный sidecar Envoy на порту `5432`.
 
 #### Шаг 4.3. Создание нового отеля (Create)
-Отправьте POST-запрос с JSON-телом нового объекта:
-|||bash
+Отправьте POST-запрос с JSON-телом нового отеля:
+```bash
 curl -s -i -X POST http://localhost:8082/api/v1/hotels \
   -H "Authorization: $TOKEN" \
   -H "Content-Type: application/json" \
@@ -558,38 +558,38 @@ curl -s -i -X POST http://localhost:8082/api/v1/hotels \
       "address": "ул. Архитекторов, д. 42"
     }
   }'
-|||
-Сервер возвращает статус `201 Created` и заголовок `Location` со ссылкой на созданный ресурс.
+```
+Сервер вернёт `201 Created` и заголовок `Location` со ссылкой на созданный ресурс.
 
-#### Шаг 4.4. Проверка обновленного каталога
+#### Шаг 4.4. Проверка обновлённого каталога
 Повторите запрос списка отелей:
-|||bash
+```bash
 curl -s -X GET http://localhost:8082/api/v1/hotels \
   -H "Authorization: $TOKEN" | jq .
-|||
-В теле ответа присутствует созданный объект `DevOps Grand Hotel`.
+```
+В ответе появится созданный `DevOps Grand Hotel`.
 
 ---
 
 ### 5. Эксперимент: проверка динамического Service Discovery при миграции IP базы данных (Chaos / Resilience Testing)
 
-Цель эксперимента — доказать, что в архитектуре Service Mesh клиентский микросервис полностью изолирован от физической топологии сети, а миграция зависимостей происходит бесшовно в режиме Zero-Downtime.
+Цель эксперимента — показать, что в архитектуре Service Mesh клиентский микросервис не зависит от физической топологии сети, а миграция зависимостей проходит бесшовно, без простоя.
 
 #### Шаг 5.1. Фиксация исходного состояния
-С хостовой машины проверьте текущий IP-адрес сервиса `db` в каталоге:
-|||bash
+С хоста проверьте текущий IP-адрес сервиса `db` в каталоге:
+```bash
 curl -s http://localhost:8500/v1/catalog/service/db | jq '.[0].ServiceAddress'
 # Возвращает: "192.168.56.13"
-|||
+```
 
-#### Шаг 5.2. Смена сетевого адреса на узле db
-Подключитесь к виртуальной машине `db` по SSH, измените статический IP-адрес сетевого интерфейса приватной сети `eth1` с `192.168.56.13` на `192.168.56.99` и перезапустите агентов:
-|||bash
+#### Шаг 5.2. Смена сетевого адреса на ноде db
+Подключитесь к `db` по SSH, смените статический IP на интерфейсе `eth1` с `192.168.56.13` на `192.168.56.99` и перезапустите агентов:
+```bash
 vagrant ssh db
-|||
+```
 Внутри терминала `db`:
-|||bash
-# Очищаем старый адрес и назначаем новый IP на интерфейс eth1
+```bash
+# Очищаем старый адрес и назначаем новый IP на eth1
 sudo ip addr flush dev eth1
 sudo ip addr add 192.168.56.99/24 dev eth1
 sudo ip link set eth1 up
@@ -597,34 +597,34 @@ sudo ip link set eth1 up
 # Перезапускаем агент Consul и sidecar-прокси Envoy
 sudo systemctl restart consul consul-envoy
 exit
-|||
+```
 
-#### Шаг 5.3. Фиксация автоматического обновления в Consul
-С хостовой машины выполните опрос каталога Consul:
-|||bash
+#### Шаг 5.3. Проверка автоматического обновления в Consul
+С хоста опросите каталог Consul:
+```bash
 curl -s http://localhost:8500/v1/catalog/service/db | jq '.[0].ServiceAddress'
 # Возвращает: "192.168.56.99"
-|||
-Gossip-протокол Serf зафиксировал новый сетевой адрес узла, сервер Consul обновил каталог, а агент на узле `api` через xDS gRPC-канал мгновенно передал новый IP в память Envoy.
+```
+Gossip-протокол Serf зафиксировал новый адрес узла, Consul обновил каталог, а агент на `api` через xDS gRPC-канал мгновенно передал новый IP в Envoy.
 
 #### Шаг 5.4. Проверка доступности API без перезапуска клиентского микросервиса
-С хостовой машины отправьте запрос на чтение каталога отелей:
-|||bash
+С хоста отправьте запрос на чтение списка отелей:
+```bash
 curl -s -X GET http://localhost:8082/api/v1/hotels \
   -H "Authorization: $TOKEN" | jq .
-|||
-Запрос успешно возвращает `200 OK` и полный список записей базы данных. Процесс Java на узле `api` не перезапускался, переменные окружения не менялись, соединение не прерывалось. Эксперимент наглядно подтверждает полную отказоустойчивость и независимость сервисов в архитектуре Service Mesh.
+```
+Запрос вернёт `200 OK` и полный список записей из БД. Процесс Java на `api` не перезапускался, переменные окружения не менялись, соединение не прерывалось. Эксперимент подтверждает отказоустойчивость и независимость сервисов в архитектуре Service Mesh.
 
 ---
 
 ### 6. Остановка и очистка окружения
 
-После завершения демонстрации и тестирования освободите ресурсы хостовой машины:
-- Временная остановка виртуальных машин с сохранением состояния:
-  |||bash
+После завершения работы освободите ресурсы хоста:
+- Остановка виртуальных машин с сохранением состояния:
+  ```bash
   vagrant halt
-  |||
-- Полное удаление виртуальных машин и виртуальных дисков VirtualBox:
-  |||bash
+  ```
+- Полное удаление виртуальных машин и дисков VirtualBox:
+  ```bash
   vagrant destroy -f
-  |||
+  ```
