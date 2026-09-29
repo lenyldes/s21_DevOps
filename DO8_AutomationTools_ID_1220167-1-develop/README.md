@@ -1,4 +1,3 @@
-```markdown
 # Автоматизация конфигурации инфраструктуры и Service Discovery: Ansible и HashiCorp Consul (Infrastructure Automation, Configuration Management with Ansible & Service Discovery with HashiCorp Consul)
 
 [![Ansible](https://img.shields.io/badge/Ansible-EE0000?style=for-the-badge&logo=ansible&logoColor=white)](https://www.ansible.com/)
