@@ -1,0 +1,28 @@
+global:
+  smtp_smarthost: 'smtp.mail.ru:465'
+  smtp_from: 'roma_mishenko@mail.ru'
+  smtp_auth_username: 'roma_mishenko@mail.ru'
+  smtp_auth_password: '1RG1NPNIz20RkUVzmCNW'
+
+
+route:
+  receiver: 'DO9_alert'
+
+  group_by: ['alertname', 'severity']
+
+  group_wait: 10s
+  group_interval: 30s
+  repeat_interval: 3h
+
+
+receivers:
+- name: 'DO9_alert'
+  email_configs:
+    - to: 'roma_mishenko@mail.ru'
+      send_resolved: true
+
+  telegram_configs:
+    - bot_token: '8796556674:AAEqldTKnMio5b0c-rdZwtFBqqPz087GYN8'
+      chat_id: 282195596
+      send_resolved: true
+      parse_mode: 'HTML'

@@ -1,0 +1,73 @@
+#docker run --name loki -d -v $(pwd):/mnt/config -p 3100:3100 grafana/loki:3.7.0 -config.file=/mnt/config/loki-config.yaml
+
+services:
+  loki:
+    image: grafana/loki:3.7.0
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki:/mnt/config
+    command: -config.file=/mnt/config/loki-config.yaml
+    
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    command:
+      - '--path.rootfs=/host'
+    volumes:
+      - '/:/host:ro'
+    deploy:
+      mode: global
+
+  cadvisor:
+    image: ghcr.io/google/cadvisor:latest
+    deploy:
+      mode: global
+    volumes:
+      - /:/rootfs:ro
+      #- /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /run/containerd/containerd.sock:/run/containerd/containerd.sock:ro
+      #- /dev/disk/:/dev/disk:ro
+  
+  blackbox_exporter:
+    image: quay.io/prometheus/blackbox-exporter:latest
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - './prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro'
+      - './prometheus/rules.yml:/etc/prometheus/rules.yml:ro'
+      - 'prometheus-data:/prometheus'
+    ports:
+      - "9090:9090"
+    networks:
+      - default
+      - shared
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+  
+  alertmanager:
+    image: quay.io/prometheus/alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/config.yml:/etc/alertmanager/alertmanager.yml:ro
+
+networks:
+  default:
+    name: monitoring_default
+  shared:
+    external: true
+    name: do9-shared
+
+volumes:
+  prometheus-data: {}
+  grafana-storage: {}

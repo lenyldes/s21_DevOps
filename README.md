@@ -6,10 +6,10 @@
 ![Ansible](https://img.shields.io/badge/Automation-Ansible-EE0000?style=flat&logo=ansible&logoColor=white)
 ![Consul](https://img.shields.io/badge/Service_Discovery-HashiCorp%20Consul-F24C53?style=flat&logo=consul&logoColor=white)
 ![GitLab CI](https://img.shields.io/badge/CI%2FCD-GitLab%20CI-FC6D26?style=flat&logo=gitlab&logoColor=white)
-![Prometheus](https://img.shields.io/badge/Monitoring-Prometheus%20%7C%20Grafana-E6522C?style=flat&logo=prometheus&logoColor=white)
+![Prometheus](https://img.shields.io/badge/Monitoring-Prometheus%20%7C%20Grafana%20%7C%20Loki%20%7C%20Alertmanager-E6522C?style=flat&logo=prometheus&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Completed-success?style=flat)
 
-Репозиторий — серия практических задач, моделирующих реальные сценарии работы с серверной инфраструктурой: от базовой настройки физических и виртуальных серверов до автоматизированного деплоя на удалённые узлы с уведомлением команды в Telegram.
+Репозиторий — серия практических задач, моделирующих реальные сценарии работы с серверной инфраструктурой: от базовой настройки физических и виртуальных серверов до автоматизированного деплоя на удалённые узлы с уведомлением команды в Telegram и построения отказоустойчивых контуров наблюдаемости (Observability).
 
 Все проекты выполнены с соблюдением отраслевых стандартов надёжности, принципов Infrastructure as Code (IaC), валидацией входных параметров, защитой сетевого периметра и изоляцией процессов.
 
@@ -25,6 +25,7 @@
 4. **Непрерывная интеграция и доставка (DO6)**: многостадийный пайплайн GitLab CI/CD со статическим анализом кода в стиле Google, автоматическим тестированием, ручным деплоем по SSH/SCP и интеграцией Telegram-уведомлений.
 5. **Кластерная оркестрация микросервисов (DO7)**: оптимизация многоэтапных сборок (Multi-Stage Builds) для микросервисов на Java 21 / Spring Boot, предотвращение состояния гонки при запуске (`wait-for-it.sh`), локальный запуск через Docker Compose и развёртывание отказоустойчивого кластера Docker Swarm в оверлейной сети VXLAN под управлением Vagrant.
 6. **Конфигурационное управление и Service Discovery (DO8)**: безагентная автоматизация серверов на Ansible (модульные роли, идемпотентные плейбуки), развёртывание распределённого сервис-каталога HashiCorp Consul с консенсусом Raft, интеграция Service Mesh через Envoy sidecar-прокси и демонстрация Zero-Downtime миграции сервисов.
+7. **Комплексный мониторинг и наблюдаемость (DO9)**: инструментирование Spring Boot микросервисов (Actuator, Micrometer Prometheus Registry), сбор кастомных бизнес-метрик, агрегация логов через Grafana Loki и Docker Logging Driver, сбор системной телеметрии (node_exporter, cAdvisor, blackbox_exporter), построение многоуровневого дашборда в Grafana с декларативным Provisioning и проактивный алертинг через Alertmanager с оповещениями в Telegram и Email.
 
 ---
 
@@ -36,12 +37,12 @@
 | **Компьютерные сети и безопасность** | Стеки протоколов TCP/IP, UDP, ICMP; бесклассовая адресация CIDR, расчёт масок и подсетей (`ipcalc`); статическая маршрутизация и Netplan YAML; межсетевые экраны и NAT (`iptables`: таблицы Filter, NAT, цепочки PREROUTING, POSTROUTING, MASQUERADE); DHCP-сервер (`isc-dhcp-server`); замеры пропускной способности (`iperf3`); безопасный удалённый доступ (SSH-ключи ED25519/RSA, туннелирование портов, SCP). |
 | **Bash-скриптинг и аналитика** | GNU Bash 5.0+, регулярные выражения (POSIX regex), потоковая обработка текста (`awk`, `sed`, `grep`, `cut`, `sort`, `uniq`), чтение виртуальных файловых систем ядра (`/proc`, `/sys`), стилизация вывода (ANSI escape-последовательности), криптографическое хеширование (MD5, SHA256). |
 | **Контейнеризация и безопасность (Docker)** | Docker Engine, оптимизированные многоэтапные сборки (Multi-Stage Dockerfile на Eclipse Temurin Alpine), минимизация слоёв OverlayFS, кэширование зависимостей Maven/JDK, непривилегированные пользователи (`USER non-root`), устранение уязвимостей CIS Docker Benchmark через линтер Dockle, мультиплатформенная сборка Docker Buildx (`amd64`/`arm64`). |
-| **Оркестрация (Compose & Swarm)** | Docker Compose (декларативное описание 9-компонентных микросервисных стеков, `depends_on`, bind-mount, изоляция сетей `bridge`), Docker Swarm (инициализация менеджера, подключение воркеров, распределённые оверлейные сети VXLAN, Ingress Routing Mesh, сервисы с репликацией, горизонтальное масштабирование `scale`, rolling updates без простоя, самоисцеление кластера Anti-Flapping), визуализатор Portainer CE Agent Stack. |
+| **Оркестрация (Compose & Swarm)** | Docker Compose (декларативное описание 9-компонентных микросервисных стеков, `depends_on`, bind-mount, изоляция сетей `bridge`), Docker Swarm (инициализация менеджера, подключение воркеров, распределённые оверлейные сети VXLAN, Ingress Routing Mesh, сервисы с репликацией, горизонтальное масштабирование `scale`, rolling updates без простоя, самоисцеление кластера Anti-Flapping), Portainer CE Agent Stack, межстековые оверлейные сети (`do9-shared`). |
 | **Управление конфигурациями (Ansible)** | Infrastructure as Code (IaC), инвентари хостов `inventory.ini`, безагентная архитектура по SSH, декларативные плейбуки `playbook.yml`, ключевые модули (`apt`, `deb822_repository`, `get_url`, `file`, `copy`, `unarchive`, `systemd`, `lineinfile`, `user`), декомпозиция на переиспользуемые роли (Ansible Roles), коллекция `community.postgresql`. |
 | **Service Discovery & Service Mesh (Consul)** | HashiCorp Consul (серверный и клиентский режимы, конфигурация в HCL, алгоритм консенсуса Raft, gossip-протокол Serf LAN), централизованный Service Catalog, активные проверки работоспособности (HTTP/TCP/Script Health Checks), Service Discovery через встроенный DNS-интерфейс (порт 8600) и HTTP API (порт 8500), интеграция Consul Connect Service Mesh с Envoy sidecar-прокси (протокол xDS, gRPC 8502, взаимное mTLS-шифрование, Zero-Downtime миграция сетевых адресов). |
 | **Инфраструктура виртуализации (IaC)** | HashiCorp Vagrant, Oracle VirtualBox, автоматизированное создание гетерогенных многоузловых кластеров (`Vagrantfile`), конфигурирование частных подсетей (Private Network), проброс портов (Port Forwarding), shell-провижининг. |
 | **CI/CD и автоматизация поставки** | Пайплайны в `.gitlab-ci.yml` (4 стадии: `build`, `style_check`, `test`, `deploy`), управление артефактами (`artifacts`, `expire_in: 30 days`), ручные гейты деплоя (`when: manual`), статический анализ кода Google Style (`clang-format -n -Werror`), интеграционное Bash-тестирование, беспарольная доставка бинарников по SSH/SCP, уведомления о статусах пайплайна через Telegram Bot API в `after_script`. |
-| **Observability, мониторинг и тесты** | Prometheus (сбор метрик, scrape configs, TSDB), визуализация в Grafana (кастомные дашборды, мониторинг CPU/Memory/Disk/Network), потоковый парсинг логов Nginx через GoAccess, автоматизация сквозного тестирования REST API (коллекции Postman, запуск в контейнеризованном раннере Newman CLI). |
+| **Observability, мониторинг и алертинг** | Prometheus Server (TSDB, PromQL, scrape-конфигурации), Spring Boot Actuator и Micrometer (кастомные счетчики Counter, `@ModelAttribute`), Grafana Loki & Loki Docker Driver (агрегация структурированных логов контейнеров в non-blocking режиме, LogQL), Google cAdvisor (метрики cgroups контейнеров и стеков Swarm), Node Exporter (хостовая телеметрия ОС), Blackbox Exporter (синтетический пробинг URL), дашборды Grafana с файловым Provisioning (Configuration as Code), Prometheus Alertmanager (маршрутизация, дедупликация, SMTP Mail.ru с TLS, Telegram Bot API). |
 
 ---
 
@@ -57,6 +58,7 @@
 | 06 | **DO6: CI/CD Pipeline** | Непрерывная интеграция и доставка (CI/CD) на базе GitLab CI/CD | Проектирование .gitlab-ci.yml (4 стадии: build, style_check, test, deploy), артефакты сборки, строгий линтинг clang-format (-Werror), bash-тестирование, ручной деплой по SSH/SCP, уведомления через Telegram Bot API | [README.md](./DO6_CICD.ID_356283-1-develop/README.md) |
 | 07 | **DO7: Container Orchestration** | Оркестрация микросервисов: Multi-Stage Docker, Docker Compose и кластер Docker Swarm | Микросервисный стек (Java 21 / Spring Boot, RabbitMQ, PostgreSQL), оптимизация multi-stage сборок (~124 МБ), wait-for-it.sh, виртуализация Vagrant/VirtualBox, кластер Swarm (Manager + Workers), оверлейная сеть VXLAN, Ingress Mesh, Portainer CE, автотесты Postman/Newman | [README.md](./DO7_Docker_Compose_ID_1219717-1-develop/README.md) |
 | 08 | **DO8: Infrastructure Automation & Service Discovery** | Автоматизация конфигурации через Ansible и Service Discovery на HashiCorp Consul | Безагентный провижининг по SSH, модульные роли Ansible (application, apache, postgres), развёртывание 9 микросервисов в Docker, кластер HashiCorp Consul (Raft, Serf Gossip), Service Mesh Envoy sidecar, Health Checks, DNS/HTTP discovery, Zero-Downtime миграция хостов | [README.md](./DO8_AutomationTools_ID_1220167-1-develop/README.md) |
+| 09 | **DO9: Observability & Monitoring** | Комплексный мониторинг и наблюдаемость: Prometheus, Grafana, Loki и Alertmanager | Инструментирование Spring Boot (Actuator/Micrometer), кастомные бизнес-метрики, сбор логов Grafana Loki (Docker Driver), node_exporter, cAdvisor (cgroups), blackbox_exporter, дашборды Grafana Provisioning, правила алертинга PromQL, оповещения Alertmanager (Telegram, Email) | [README.md](./DO9_Monitoring_ID_1220168-1-develop/README.md) |
 
 ---
 
@@ -111,7 +113,7 @@
 │   └── src/
 │       ├── deploy.sh                                 # Скрипт автоматизированного деплоя по SSH
 │       └── test.sh                                   # Интеграционные тесты CLI-приложения
-├── DO7_Docker_Compose_ID_1219717-1-develop/             # Проект 07: Docker Compose и Docker Swarm
+├── DO7_Docker_Compose_ID_1219717-1-develop/          # Проект 07: Docker Compose и Docker Swarm
 │   ├── README.md                                     # Документация проекта DO7
 │   └── src/
 │       ├── Vagrantfile                               # Топология виртуальных машин Swarm (3 узла)
@@ -122,23 +124,37 @@
 │       ├── script/
 │       │   └── docker-install.sh                     # Автоматизированная установка Docker Engine
 │       └── services/                                 # Исходный код 7 микросервисов и сервисов БД
-└── DO8_AutomationTools_ID_1220167-1-develop/            # Проект 08: Ansible и Service Discovery (Consul)
-    ├── README.md                                     # Документация проекта DO8
+├── DO8_AutomationTools_ID_1220167-1-develop/         # Проект 08: Ansible и Service Discovery (Consul)
+│   ├── README.md                                     # Документация проекта DO8
+│   └── src/
+│       ├── Vagrantfile                               # Стенды виртуализации для Ansible и Consul
+│       ├── REPORT.MD                                 # Инженерный отчёт с подтверждениями
+│       ├── application_tests.postman_collection.json # Коллекция E2E-тестов API
+│       ├── ansible01/                                # Part 1: Плейбук и роли деплоя микросервисов
+│       │   ├── inventory.ini                         # Инвентарь хостов (manager, node01, node02)
+│       │   ├── playbook.yml                          # Оркестрация ролей (application, apache, postgres)
+│       │   └── roles/                                # Модульные роли Ansible (application, apache, postgres)
+│       ├── ansible02/                                # Part 2: Плейбук и роли Service Discovery
+│       │   ├── inventory.ini                         # Инвентарь хостов (consulServer, api, db)
+│       │   ├── playbook.yml                          # Оркестрация Consul, Envoy, Spring Boot и PostgreSQL
+│       │   └── roles/                                # Модульные роли Ansible (consul_*, postgres, hotel_service)
+│       └── consul01/                                 # HCL-конфигурации HashiCorp Consul
+│           ├── consul_server.hcl                     # Конфигурация сервера Consul (Raft, Web UI)
+│           └── consul_client.hcl                     # Конфигурация клиента Consul (gRPC, xDS)
+└── DO9_Monitoring_ID_1220168-1-develop/              # Проект 09: Комплексный мониторинг и наблюдаемость
+    ├── README.md                                     # Документация проекта DO9
     └── src/
-        ├── Vagrantfile                               # Стенды виртуализации для Ansible и Consul
-        ├── REPORT.MD                                 # Инженерный отчёт с подтверждениями
-        ├── application_tests.postman_collection.json # Коллекция E2E-тестов API
-        ├── ansible01/                                # Part 1: Плейбук и роли деплоя микросервисов
-        │   ├── inventory.ini                         # Инвентарь хостов (manager, node01, node02)
-        │   ├── playbook.yml                          # Оркестрация ролей (application, apache, postgres)
-        │   └── roles/                                # Модульные роли Ansible (application, apache, postgres)
-        ├── ansible02/                                # Part 2: Плейбук и роли Service Discovery
-        │   ├── inventory.ini                         # Инвентарь хостов (consulServer, api, db)
-        │   ├── playbook.yml                          # Оркестрация Consul, Envoy, Spring Boot и PostgreSQL
-        │   └── roles/                                # Модульные роли Ansible (consul_*, postgres, hotel_service)
-        └── consul01/                                 # HCL-конфигурации HashiCorp Consul
-            ├── consul_server.hcl                     # Конфигурация сервера Consul (Raft, Web UI)
-            └── consul_client.hcl                     # Конфигурация клиента Consul (gRPC, xDS)
+        ├── REPORT.md                                 # Инженерный отчёт с подтверждениями
+        ├── screenshot/                               # Скриншоты верификации метрик, логов и алертов
+        ├── monitoring/                               # Стек сервисов мониторинга
+        │   ├── docker-compose.yml                    # Оркестрация стека monitoring (Swarm)
+        │   ├── prometheus/                           # Конфигурация Prometheus (prometheus.yml, rules.yml)
+        │   ├── loki/                                 # Конфигурация Grafana Loki (loki-config.yaml)
+        │   ├── grafana/                              # Provisioning источников данных и дашбордов
+        │   └── alertmanager/                         # Маршрутизация алертов (config.yml, Telegram, Email)
+        └── services/                                 # Стек микросервисов приложения с логированием
+            ├── docker-compose.yml                    # Манифест микросервисов с подключением Loki
+            └── application_tests.postman_collection.json # Сквозные тесты API
 ```
 
 ---
@@ -146,10 +162,10 @@
 ## Требования и быстрый старт
 
 ### Системные требования
-- **Операционная система:** Linux (рекомендуется Ubuntu 20.04 / 22.04 / 24.04 LTS);
+- **Операционная система:** Linux (рекомендуется Ubuntu 20.04 / 22.04 / 24.04 LTS) или macOS (с Docker Desktop);
 - **Командные оболочки:** GNU Bash 5.0+;
-- **Базовый инструментарий:** GNU Coreutils, `awk`, `sed`, `curl`, `git`, `git-lfs`, `iproute2`, `net-tools`;
-- **Контейнеризация:** Docker Engine 20.10+, Docker Compose v2+;
+- **Базовый инструментарий:** GNU Coreutils, `awk`, `sed`, `curl`, `wget`, `jq`, `git`, `git-lfs`, `iproute2`, `net-tools`;
+- **Контейнеризация и оркестрация:** Docker Engine 24.0+, Docker Compose v2+, Docker Swarm;
 - **Виртуализация и IaC:** HashiCorp Vagrant 2.3+, Oracle VirtualBox 7.0+;
 - **Автоматизация конфигурации:** Ansible 2.14+ (с коллекцией `community.postgresql`);
 - **CI/CD раннер:** GitLab Runner (для воспроизведения распределённого пайплайна);
@@ -238,3 +254,22 @@
    # Проверка статуса сервисов через HTTP API Consul
    curl http://192.168.56.20:8500/v1/catalog/services
    ```
+
+10. **Развёртывание стека мониторинга и микросервисов (DO9):**
+    ```bash
+    # Инициализация Docker Swarm и создание общей оверлейной сети
+    docker swarm init
+    docker network create do9-shared --driver overlay --attachable
+
+    # Установка драйвера логирования Loki в Docker Engine
+    docker plugin install grafana/loki-docker-driver:3.7.0-arm64 --alias loki --grant-all-permissions
+
+    # Развёртывание микросервисов и стека мониторинга
+    cd DO9_Monitoring_ID_1220168-1-develop/src
+    docker stack deploy -c ./services/docker-compose.yml hotel_app
+    docker stack deploy -c ./monitoring/docker-compose.yml monitoring
+
+    # Проверка таргетов сбора метрик в Prometheus и дашбордов в Grafana
+    curl http://localhost:9090/targets
+    # Grafana Dashboard доступен на http://localhost:3000
+    ```

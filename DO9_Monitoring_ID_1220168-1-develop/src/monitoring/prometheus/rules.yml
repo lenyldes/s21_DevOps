@@ -1,0 +1,31 @@
+groups:
+  - name: DO9
+    rules:
+    - alert: NodeMemoryAvailableLow
+      expr: node_memory_MemAvailable_bytes / 1024 / 1024 < 100
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: "Доступная память меньше установленного порога"
+        description: "Текущее значение: {{ $value }}, порог: 100Мб"
+
+    - alert: NodeRAMUsageHigh
+      expr: (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes) / 1024 / 1024 / 1024 > 1
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: "Затраченная память больше установленного порога"
+        description: "Текущее значение: {{ $value }}, порог: 1Гб"
+
+    - alert: ServiceCPUUsageHigh
+      expr: sum by(container_label_com_docker_swarm_service_name) (rate(container_cpu_usage_seconds_total{container_label_com_docker_swarm_service_name=~".+"}[1m]) * 100) > 10
+      for: 30s
+      labels:
+        severity: critical
+      annotations:
+        summary: "Использование CPU по сервису превышает 10%"
+        description: "Сервис {{ $labels.container_label_com_docker_swarm_service_name }} использует {{ $value }}% CPU"
+
+
